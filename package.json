@@ -1,0 +1,27 @@
+{
+  "name": "b",
+  "version": "1.0.0",
+  "description": "backend to e-commerce",
+  "author": {
+    "name": "flores matias leandro"
+  },
+  "engines": {
+    "node": ">= v16.18.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "mysql2": "^3.5.2",
+    "nodemon": "^3.0.1",
+    "sequelize": "^6.32.1"
+  }
+}
