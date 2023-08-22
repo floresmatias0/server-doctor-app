@@ -1,11 +1,12 @@
+require('dotenv').config();
+
 const chalk = require('chalk');
 const server = require('./src/app.js');
-const { conn } = require('./src/db.js');
+const { connect } = require('./src/db.js');
 const { PORT } = process.env;
 
-// Syncing all the models at once.
-conn.sync({ force: true }).then(() => {
-  server.listen(PORT, () => {
-    console.log(chalk.green('listening at ' + PORT)); // eslint-disable-line no-console
-  });
+connect();
+
+server.listen(PORT, () => {
+  console.log(chalk.yellow('Listening at ' + PORT)); // eslint-disable-line no-console
 });

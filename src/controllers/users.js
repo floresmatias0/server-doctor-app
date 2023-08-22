@@ -1,8 +1,8 @@
-const { User } = require("../db");
+const User = require("../models/user");
 
-const findAllUsers = async () => {
+const findAllUsers = async (filters) => {
     try {
-        return await User.findAll();
+        return await User.find(filters);
     }catch(err) {
         throw new Error(err.message);
     }
@@ -10,7 +10,7 @@ const findAllUsers = async () => {
 
 const findUserById = async (userId) => {
     try {
-        const user = await User.findByPk(userId);
+        const user = await User.findOne({_id: userId});
         if (!user) {
             throw new Error('User not found');
         }
@@ -22,7 +22,8 @@ const findUserById = async (userId) => {
 
 const findUserByEmail = async (userEmail) => {
     try {
-        const user = await User.findOne({ where: { email: userEmail } });
+        const user = await User.findOne({ email: userEmail });
+
         if (!user) {
             throw new Error('User not found');
         }
@@ -32,26 +33,26 @@ const findUserByEmail = async (userEmail) => {
     }
 };
 
-const verifyUserByEmail = async (userEmail) => {
+const createUser = async (userData) => {
     try {
-        return await User.findOne({ where: { email: userEmail } });
+        const { name, email, role, picture, googleId, accessToken, refreshToken } = userData;
+        return await User.create({
+            name,
+            email,
+            role,
+            picture,
+            googleId,
+            accessToken,
+            refreshToken
+        });
     }catch(err) {
         throw new Error(err.message);
     }
-};
+}
 
-const createUser = async (userData) => {
+const updateUser = async (id, userData) => {
     try {
-        const { firstName, lastName, username, email, password, role, image } = userData;
-        return await User.create({
-            firstName,
-            lastName,
-            username,
-            email,
-            password,
-            role,
-            image
-        });
+        return await User.findOneAndUpdate({ _id: id }, userData);
     }catch(err) {
         throw new Error(err.message);
     }
@@ -61,6 +62,6 @@ module.exports = {
     findAllUsers,
     findUserById,
     findUserByEmail,
-    verifyUserByEmail,
-    createUser
+    createUser,
+    updateUser
 };
