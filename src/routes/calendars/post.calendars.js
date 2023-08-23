@@ -2,12 +2,14 @@ const server = require('express').Router();
 const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { v4: uuidv4 } = require('uuid');
+const { createBooking } = require('../../controllers/calendars');
 
 server.post('/create-event', async (req, res) => {
     try {
         const { doctorEmail, patientEmail, title, startDateTime, endDateTime } = req.body;
 
         const user = await findUserByEmail(doctorEmail);
+        const patient = await findUserByEmail(patientEmail)
 
         if (!user) {
             return res.status(401).json({
@@ -61,6 +63,11 @@ server.post('/create-event', async (req, res) => {
             sendNotifications: true,
             conferenceDataVersion: 1
         });
+
+        await createBooking({
+            ...response.data,
+            userId: patient._id
+        })
 
         return res.status(200).json({
             success: true,
