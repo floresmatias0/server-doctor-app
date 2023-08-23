@@ -18,6 +18,6 @@
         "GOOGLE_CLIENT_ID":"155616110568-gqojdekg4qg1077fphhattir1eojnbid.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET":"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",
         "GOOGLE_CLIENT_CALLBACK":"https://back-doctor-app.vercel.app/v1/auth/google/callback",
-        "FRONTEND_URL":"https://front-doctor-app.vercel.app"
+        "FRONTEND_URL":"https://64e6663358c06f03600b9d56--marvelous-meerkat-172a8b.netlify.app"
     }
 }
