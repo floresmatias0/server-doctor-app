@@ -13,7 +13,7 @@
         }
     ],
     "env": {
-        "PORT": 3001,
+        "PORT": "3001",
         "DB_MONGOOSE":"mongodb+srv://vercel-admin-user-64e64eabdaa0b91f9676987e:C2AC97eaKpMEEicl@cluster0.ygko73j.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
         "GOOGLE_CLIENT_ID":"155616110568-gqojdekg4qg1077fphhattir1eojnbid.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET":"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",
