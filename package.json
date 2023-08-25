@@ -26,6 +26,7 @@
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
     "googleapis": "^105.0.0",
+    "mercadopago": "^1.5.17",
     "mongoose": "^7.4.3",
     "mysql2": "^3.5.2",
     "nodemon": "^3.0.1",

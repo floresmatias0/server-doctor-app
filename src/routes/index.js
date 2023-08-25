@@ -10,6 +10,7 @@ const getAuth = require('./auth/get.auth.js');
 const getCalendars = require('./calendars/get.calendars.js');
 const postCalendars = require('./calendars/post.calendars.js');
 
+const getPayments = require('./payments/get.payments.js');
 
 const router = Router();
 
@@ -18,10 +19,11 @@ router.use('/users', getUsers);
 router.use('/users', postUsers);
 router.use('/users', putUsers);
 
-router.use('/auth/google', getAuth);
+router.use('/auth', getAuth);
 
 router.use('/calendars', getCalendars);
 router.use('/calendars', postCalendars);
 
+router.use('/payments', getPayments);
 
 module.exports = router;
