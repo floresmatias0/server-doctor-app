@@ -44,38 +44,4 @@ server.get('/google/logout', (req, res) => {
     });
 });
 
-server.get('/mercadopago', async (req, res, next) => {
-    try {
-        //ESTE CODE ES VALIDO SOLO POR 10MIN
-        const { user_id, code } = req.query;
-
-        const body = JSON.stringify({
-            "client_secret": process.env.MERCADOPAGO_CLIENT_SECRET,
-            "client_id": process.env.MERCADOPAGO_CLIENT_ID,
-            "grant_type": "authorization_code",
-            code
-        });
-
-        const response = await fetch('https://api.mercadopago.com/oauth/token', {
-            'method': 'POST',
-            'headers': {
-                "Content-Type": "application/json",
-                // 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body
-        })
-
-        await updateUser(user_id, {
-            'mercadopago_access': req.session
-        })
-
-        res.redirect(`${process.env.FRONTEND_URL}/profile`);
-    }catch(err) {
-        return res.status(500).json({
-            success: false,
-            error: err.message
-        });
-    }
-});
-
 module.exports = server;
