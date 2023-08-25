@@ -8,7 +8,7 @@ const UserSchema = new Schema({
   googleId: { type: String },
   accessToken: { type: String },
   refreshToken: { type: String },
-  mp_accessToken: { type: String, default: '' },
+  mercadopago_access: { type: Object, default: '' },
 }, {
     timestamps: true
 });
