@@ -1,5 +1,5 @@
 const server = require('express').Router();
-const { createUser } = require('../../controllers/users');
+const { createUser, updateUser } = require('../../controllers/users');
 
 server.post('/',
     async (req, res) => {
@@ -20,7 +20,7 @@ server.post('/',
     }
 );
 
-server.post('/mercadopago', async (req, res, next) => {
+server.post('/mercadopago', async (req, res) => {
     try {
         const { user_id, mercadopago_access } = req.body;
 
