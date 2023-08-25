@@ -20,10 +20,10 @@ server.post('/',
     }
 );
 
-server.post('/mercadopago', async (req, res, next) => {
+server.get('/mercadopago', async (req, res, next) => {
     try {
-        const { user_id, mercadopago_access } = req.body;
-
+        const { user_id } = req.query;
+        console.log(req, res)
 
         await updateUser(user_id, {
             mercadopago_access
@@ -31,7 +31,7 @@ server.post('/mercadopago', async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
-            data: 'User data mercadopago update'
+            data: {req, res}
         });
     }catch(err) {
         return res.status(500).json({
