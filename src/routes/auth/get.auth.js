@@ -66,7 +66,7 @@ server.get('/mercadopago', async (req, res, next) => {
         })
 
         await updateUser(user_id, {
-            'mercadopago_access': response.json()
+            'mercadopago_access': req.session
         })
 
         res.redirect(`${process.env.FRONTEND_URL}/profile`);
