@@ -46,8 +46,17 @@ const createBooking = async (bookingData) => {
     }
 }
 
+const updateBooking = async (id, bookingData) => {
+    try {
+        return await Booking.findOneAndUpdate({ _id: id }, bookingData);
+    }catch(err) {
+        throw new Error(err.message);
+    }
+}
+
 module.exports = {
     findAllBooking,
     findBookingById,
-    createBooking
+    createBooking,
+    updateBooking
 };

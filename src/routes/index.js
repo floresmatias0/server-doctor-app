@@ -9,8 +9,11 @@ const getAuth = require('./auth/get.auth.js');
 
 const getCalendars = require('./calendars/get.calendars.js');
 const postCalendars = require('./calendars/post.calendars.js');
+const deleteCalendars = require('./calendars/delete.calendars.js');
 
 const getPayments = require('./payments/get.payments.js');
+const postPayments = require('./payments/post.payments.js');
+
 
 const router = Router();
 
@@ -23,7 +26,10 @@ router.use('/auth', getAuth);
 
 router.use('/calendars', getCalendars);
 router.use('/calendars', postCalendars);
+router.use('/calendars', deleteCalendars);
 
 router.use('/payments', getPayments);
+router.use('/payments', postPayments);
+
 
 module.exports = router;

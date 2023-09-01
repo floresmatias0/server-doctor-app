@@ -41,8 +41,7 @@ server.get('/', async (req, res) => {
                     error: err.message + " try again"
                 });
             }
-            // Aquí puedes manejar la respuesta de la API de Google Calendar
-            // response.data contiene los datos de los eventos, por ejemplo
+
             return res.status(200).json({
                 success: true,
                 data: response.data

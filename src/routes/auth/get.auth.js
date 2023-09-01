@@ -1,18 +1,20 @@
 const passport = require('passport');
-const { updateUser } = require('../../controllers/users');
 const server = require('express').Router();
 
-server.get('/google', (req, res, next) => {
+server.get('/google/', (req, res, next) => {
     const { role } = req.query
-    const scope = [ 'email', 'profile', 'https://www.googleapis.com/auth/calendar' ]
+    const scope = [ 'email', 'profile', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events' ]
 
     if(role === "PATIENT") {
+        scope.pop()
         scope.pop()
     }
     passport.authenticate('google', {
         scope,
         accessType: 'offline',
         prompt: 'consent',
+        state: role,
+        passReqToCallback: true
     })(req, res, next);
 });
 
