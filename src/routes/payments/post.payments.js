@@ -20,10 +20,10 @@ server.post('/create', async (req, res) => {
                     quantity: 1,
                   }
                 ],
-                redirect_urls: {
+                back_urls: {
                     "failure": "",
                     "pending": "",
-                    "success": ""
+                    "success": process.env.FRONTEND_URL
                 },
             };
 
