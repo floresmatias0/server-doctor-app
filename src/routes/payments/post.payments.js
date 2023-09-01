@@ -21,16 +21,16 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "failure": "",
-                    "pending": "",
+                    "failure": process.env.FRONTEND_URL,
+                    "pending": process.env.FRONTEND_URL,
                     "success": process.env.FRONTEND_URL
                 },
             };
 
             const response = await mercadopago.preferences.create(preference);
-            console.log({response})
+
             return res.status(200).json({
-                success: false,
+                success: true,
                 error: response
             });
         }
