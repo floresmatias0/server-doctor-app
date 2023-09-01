@@ -13,25 +13,26 @@ server.post('/create', async (req, res) => {
             });
     
             let preference = {
-                items: [
+                "items": [
                   {
                     title: 'Consulta medica',
                     unit_price,
                     quantity: 1,
                   }
                 ],
-                back_urls: {
-                    "failure": process.env.FRONTEND_URL,
+                "back_urls": {
+                    "failure": "",
                     "pending": process.env.FRONTEND_URL,
                     "success": process.env.FRONTEND_URL
                 },
+                "auto_return": "approved"
             };
 
             const response = await mercadopago.preferences.create(preference);
 
             return res.status(200).json({
                 success: true,
-                error: response
+                data: response.body.id
             });
         }
 
