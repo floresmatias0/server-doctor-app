@@ -4,28 +4,28 @@ const mercadopago = require ('mercadopago');
 
 server.post('/create', async (req, res) => {
     try {
-        const { unit_price, user_email } = req.body;
+        const { unit_price, user_email, startDateTime, endDateTime, patient_email } = req.body;
         const doctor = await findUserByEmail(user_email);
         if(doctor) {
             
             mercadopago.configure({
-                access_token: doctor?.mercadopago_access?.access_token
+                access_token: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN
             });
     
             let preference = {
-                "items": [
+                items: [
                   {
                     title: 'Consulta medica',
                     unit_price,
                     quantity: 1,
                   }
                 ],
-                "back_urls": {
-                    "failure": process.env.FRONTEND_URL,
-                    "pending": process.env.FRONTEND_URL,
-                    "success": process.env.FRONTEND_URL
+                back_urls: {
+                    "success": `${process.env.BACKEND_URL}/v1/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}`,
+                    "failure": `${process.env.BACKEND_URL}/v1/payments/feedback`,
+                    "pending": `${process.env.BACKEND_URL}/v1/payments/feedback`
                 },
-                "auto_return": "approved"
+                auto_return: "approved"
             };
 
             const response = await mercadopago.preferences.create(preference);

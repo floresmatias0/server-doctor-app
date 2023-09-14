@@ -1,5 +1,7 @@
 const Booking = require("../models/booking");
-const { findUserByEmail } = require("./users");
+const { findUserByEmail, updateUser } = require("./users");
+const { google } = require('googleapis');
+const { v4: uuidv4 } = require('uuid');
 
 const findAllBooking = async (filters) => {
     try {
@@ -54,9 +56,79 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
+const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endDateTime) => {
+    try {
+        const user = await findUserByEmail(doctorEmail);
+        const patient = await findUserByEmail(patientEmail);
+
+        if (!user) {
+            throw new Error("User not found")
+        }
+
+        const auth = new google.auth.OAuth2({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET
+        });
+
+        auth.setCredentials({ refresh_token: user.refreshToken });
+
+        const refreshedTokens = await auth.refreshAccessToken();
+
+        if (refreshedTokens.credentials.access_token) {
+            await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
+        }
+
+        const calendar = google.calendar('v3');
+        const randomString = uuidv4();
+
+        const event = {
+            summary: title,
+            start: {
+                dateTime: startDateTime,
+                timeZone: 'America/Argentina/Buenos_Aires'
+            },
+            end: {
+                dateTime: endDateTime,
+                timeZone: 'America/Argentina/Buenos_Aires'
+            },
+            attendees: [
+                {'email': doctorEmail },
+                {'email': patientEmail }
+            ],
+            conferenceData: {
+                createRequest: { requestId: randomString }
+            },
+            'reminders': {
+                'useDefault': true
+            }
+        };
+
+        const response = await calendar.events.insert({
+            auth,
+            calendarId: 'primary',
+            resource: event,
+            sendNotifications: true,
+            conferenceDataVersion: 1
+        });
+
+        await createBooking({
+            ...response.data,
+            userId: patient._id
+        })
+
+        return {
+            success: true,
+            data: response.data
+        };
+    } catch (err) {
+        throw new Error(err.message)
+    }
+}
+
 module.exports = {
     findAllBooking,
     findBookingById,
     createBooking,
-    updateBooking
+    updateBooking,
+    createEvent
 };

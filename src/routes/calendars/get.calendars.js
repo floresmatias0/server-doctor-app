@@ -36,6 +36,7 @@ server.get('/', async (req, res) => {
         calendar.events.list({ auth, calendarId: 'primary' }, (err, response) => {
 
             if (err) {
+                console.log(err)
                 return res.status(500).json({
                     success: false,
                     error: err.message + " try again"
@@ -48,6 +49,7 @@ server.get('/', async (req, res) => {
             });
         });
     } catch (err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: err.message

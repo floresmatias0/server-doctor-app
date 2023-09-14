@@ -2,7 +2,7 @@ const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_CALLBACK } = process.env;
 
-const { createUser, findUserByEmail, updateUser } = require('../controllers/users');
+const { createUser, findUserByEmail, updateUser, findUserById } = require('../controllers/users');
 
 passport.use(new GoogleStrategy({
     clientID:     GOOGLE_CLIENT_ID,
@@ -50,8 +50,11 @@ passport.serializeUser((user, done) => {
     return done(null, user);
 });
 
-passport.deserializeUser((user, done) => {
-    return done(null, user);
+passport.deserializeUser((id, done) => {
+    // Buscar el usuario en la base de datos utilizando el 'id'
+    findUserById(id, (err, user) => {
+        done(err, user);
+    });
 });
 
 module.exports = passport;
