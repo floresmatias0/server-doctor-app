@@ -9,6 +9,8 @@ const UserSchema = new Schema({
   accessToken: { type: String },
   refreshToken: { type: String },
   mercadopago_access: { type: Object, default: '' },
+  reservePrice: { type: Number, default: 500 },
+  reserveTime: { type: Number, default: 15 }
 }, {
     timestamps: true
 });
