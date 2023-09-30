@@ -6,12 +6,13 @@ server.post('/create', async (req, res) => {
     try {
         const { unit_price, user_email, startDateTime, endDateTime, patient_email } = req.body;
         const doctor = await findUserByEmail(user_email);
+
         if(doctor) {
-            
             mercadopago.configure({
                 access_token: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN
             });
-    
+            
+            let commision = (unit_price * 100) / 10;
             let preference = {
                 items: [
                   {
@@ -25,7 +26,8 @@ server.post('/create', async (req, res) => {
                     "failure": `${process.env.BACKEND_URL}/v1/payments/feedback`,
                     "pending": `${process.env.BACKEND_URL}/v1/payments/feedback`
                 },
-                auto_return: "approved"
+                auto_return: "approved",
+                marketplace_fee: commision
             };
 
             const response = await mercadopago.preferences.create(preference);
