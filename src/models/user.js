@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const UserSchema = new Schema({
   name: { type: String },
   email: { type: String, default: '' },
-  role: { type: String, default: 'PATIENT' },
+  role: { type: String, enum : ['PATIENT','DOCTOR'], default: 'PATIENT' },
   picture: { type: String },
   googleId: { type: String },
   accessToken: { type: String },

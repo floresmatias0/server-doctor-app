@@ -14,6 +14,10 @@ const deleteCalendars = require('./calendars/delete.calendars.js');
 const getPayments = require('./payments/get.payments.js');
 const postPayments = require('./payments/post.payments.js');
 
+const getPatients = require('./patients/get.patient.js');
+const postPatients = require('./patients/post.patient.js');
+const putPatients = require('./patients/put.patient.js');
+
 
 const router = Router();
 
@@ -30,6 +34,10 @@ router.use('/calendars', deleteCalendars);
 
 router.use('/payments', getPayments);
 router.use('/payments', postPayments);
+
+router.use('/patients', getPatients);
+router.use('/patients', postPatients);
+router.use('/patients', putPatients);
 
 
 module.exports = router;
