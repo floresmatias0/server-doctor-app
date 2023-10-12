@@ -18,6 +18,9 @@ const getPatients = require('./patients/get.patient.js');
 const postPatients = require('./patients/post.patient.js');
 const putPatients = require('./patients/put.patient.js');
 
+const getSymptoms = require('./symptoms/get.symptom.js');
+const postSymptoms = require('./symptoms/post.symptom.js');
+
 
 const router = Router();
 
@@ -38,6 +41,9 @@ router.use('/payments', postPayments);
 router.use('/patients', getPatients);
 router.use('/patients', postPatients);
 router.use('/patients', putPatients);
+
+router.use('/symptoms', getSymptoms);
+router.use('/symptoms', postSymptoms);
 
 
 module.exports = router;
