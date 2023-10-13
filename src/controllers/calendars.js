@@ -1,4 +1,5 @@
 const Booking = require("../models/booking");
+const { findPatientByEmail } = require("./patients");
 const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
 const { v4: uuidv4 } = require('uuid');
@@ -59,7 +60,11 @@ const updateBooking = async (id, bookingData) => {
 const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endDateTime) => {
     try {
         const user = await findUserByEmail(doctorEmail);
-        const patient = await findUserByEmail(patientEmail);
+        let patient = await findUserByEmail(patientEmail);
+        
+        if(!patient) {
+            patient = await findPatientByEmail(patientEmail);
+        }
 
         if (!user) {
             throw new Error("User not found")

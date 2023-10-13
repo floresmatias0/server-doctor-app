@@ -66,7 +66,7 @@ server.get('/feedback', async (req, res) => {
             await createPayment({ payment_id, merchant_order_id, status, payer: patient, doctor })
         }
 
-        let url_redirect = `${process.env.FRONTEND_URL}/?status=${status}`
+        let url_redirect = `${process.env.FRONTEND_URL}/appointment?status=${status}&doctor=${doctor}&patient${patient}&startDateTime=${startDateTime}&endDateTime=${endDateTime}`
         res.redirect(url_redirect);
     }catch(err) {
         return res.status(500).json({

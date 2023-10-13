@@ -12,7 +12,8 @@ server.post('/create', async (req, res) => {
                 access_token: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN
             });
             
-            let commision = (unit_price * 100) / 10;
+            let commision = (unit_price * 10) / 100;
+
             let preference = {
                 items: [
                   {
