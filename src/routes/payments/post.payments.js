@@ -4,7 +4,7 @@ const mercadopago = require ('mercadopago');
 
 server.post('/create', async (req, res) => {
     try {
-        const { unit_price, user_email, startDateTime, endDateTime, patient_email } = req.body;
+        const { unit_price, user_email, startDateTime, endDateTime, patient_email, symptoms } = req.body;
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
@@ -23,7 +23,7 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "success": `${process.env.BACKEND_URL}/v1/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}`,
+                    "success": `${process.env.BACKEND_URL}/v1/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${symptoms}`,
                     "failure": `${process.env.BACKEND_URL}/v1/payments/feedback`,
                     "pending": `${process.env.BACKEND_URL}/v1/payments/feedback`
                 },

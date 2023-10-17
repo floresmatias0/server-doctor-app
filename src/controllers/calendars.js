@@ -1,5 +1,6 @@
 const Booking = require("../models/booking");
 const { findPatientByEmail } = require("./patients");
+const { findAllSymptoms } = require("./symptoms");
 const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
 const { v4: uuidv4 } = require('uuid');
@@ -26,13 +27,20 @@ const findBookingById = async (bookingId) => {
 
 const createBooking = async (bookingData) => {
     try {
-        const { id, status, summary, organizer, start, end, hangoutLink, userId } = bookingData;
+        const { id, status, summary, organizer, start, end, hangoutLink, userId, symptoms } = bookingData;
 
         const doctor = await findUserByEmail(organizer.email);
 
         if(!doctor) {
             throw new Error(err.message);
         }
+
+        const symptomsIds = []
+
+        symptoms.forEach(async symptom => {
+            let findSymptom = await findAllSymptoms({ name: symptom })
+            if(findSymptom) symptomsIds.push(findSymptom._id)
+        })
 
         return await Booking.create({
             booking_id: id,
@@ -42,7 +50,8 @@ const createBooking = async (bookingData) => {
             organizer: doctor,
             start,
             end,
-            hangoutLink
+            hangoutLink,
+            symptoms: symptomsIds
         });
     }catch(err) {
         throw new Error(err.message);
@@ -57,7 +66,7 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
-const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endDateTime) => {
+const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endDateTime, symptoms) => {
     try {
         const user = await findUserByEmail(doctorEmail);
         let patient = await findUserByEmail(patientEmail);
@@ -118,7 +127,8 @@ const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endD
 
         await createBooking({
             ...response.data,
-            userId: patient._id
+            userId: patient._id,
+            symptoms
         })
 
         return {
