@@ -9,7 +9,7 @@ server.post('/create', async (req, res) => {
 
         if(doctor) {
             mercadopago.configure({
-                access_token: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN
+                access_token: doctor?.mercadopago_access?.access_token
             });
             
             let commision = (unit_price * 10) / 100;
