@@ -25,7 +25,7 @@ server.post('/mercadopago', async (req, res) => {
     try {
         const { code, user_id } = req.body;
 
-          const options = {
+        const options = {
             "method": "POST",
             "url": process.env.MERCADOPAGO_OAUTH_TOKEN_URL,
             "headers": {
@@ -38,8 +38,10 @@ server.post('/mercadopago', async (req, res) => {
                 "code": code,
                 "redirect_uri": process.env.MERCADOPAGO_OAUTH_REDIRECT_URL
             }
-          }
-          const response = await axios.request(options)
+        }
+
+        const response = await axios.request(options)
+        console.log({options, response});
 
         await updateUser(user_id, {
             mercadopago_access: response.data
@@ -50,6 +52,7 @@ server.post('/mercadopago', async (req, res) => {
             data: 'User data mercadopago update'
         });
     }catch(err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: err.message
