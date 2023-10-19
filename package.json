@@ -30,6 +30,7 @@
     "mercadopago": "^1.5.17",
     "mongoose": "^7.4.3",
     "mysql2": "^3.5.2",
+    "node-fetch": "^2.7.0",
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-google-oauth2": "^0.2.0",
