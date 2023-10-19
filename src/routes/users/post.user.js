@@ -50,6 +50,13 @@ server.post('/mercadopago', async (req, res) => {
         })
 
         const data = await response.json();
+        
+        if(!data.access_token) {
+            return res.status(400).json({
+                success: false,
+                error: data
+            });
+        }
 
         await updateUser(user_id, {
             mercadopago_access: data
