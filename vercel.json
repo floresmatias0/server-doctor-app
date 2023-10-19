@@ -20,7 +20,11 @@
         "GOOGLE_CLIENT_CALLBACK":"https://back-doctor-app.vercel.app/v1/auth/google/callback",
         "FRONTEND_URL":"https://front-doctor-app.vercel.app",
         "BACKEND_URL":"https://back-doctor-app.vercel.app",
-        "MERCADOPAGO_CLIENT_ID": "3416340458135766",
-        "MERCADOPAGO_CLIENT_SECRET": "o6nZDJ2DVqSWuwGScJMEajAn2CXaBABa"
+        "MERCADOPAGO_CLIENT_ID": "5506143400291116",
+        "MERCADOPAGO_CLIENT_SECRET": "TP9BbamvfB0nMNcPzyUee9DewsPdv3TQ",
+        "MERCADOPAGO_OAUTH_REDIRECT_URL": "https://front-doctor-app.vercel.app/settings",
+        "MERCADOPAGO_OAUTH_TOKEN_URL": "https://api.mercadopago.com/oauth/token",
+        "MERCADOPAGO_LOCAL_ACCESS_TOKEN": "APP_USR-5506143400291116-092821-73185af7e2f5dd9f0f3eb67e97d7ceb3-135898274",
+        "MERCADOPAGO_LOCAL_PUBLIC_KEY": "APP_USR-82ac8079-e6e9-4467-8f13-2f98ff1f9d4e"
     }
 }
