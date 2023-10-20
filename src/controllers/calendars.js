@@ -37,7 +37,7 @@ const createBooking = async (bookingData) => {
 
         const symptomsIds = []
 
-        symptoms.forEach(async symptom => {
+        symptoms.split(',').forEach(async symptom => {
             let findSymptom = await findAllSymptoms({ name: symptom })
             if(findSymptom) symptomsIds.push(findSymptom._id)
         })

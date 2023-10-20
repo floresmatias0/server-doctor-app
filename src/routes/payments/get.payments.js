@@ -63,7 +63,7 @@ server.get('/feedback', async (req, res) => {
 
         if(status === "approved") {
             // let symptomsParse = JSON.parse(symptoms)
-            console.log({symptoms})
+            // console.log({symptoms})
             await createEvent(doctor, patient, 'Consulta medica', startDateTime, endDateTime, symptoms)
             await createPayment({ payment_id, merchant_order_id, status, payer: patient, doctor })
         }
