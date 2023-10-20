@@ -11,20 +11,5 @@
             "src": "/(.*)",
             "dest": "/"
         }
-    ],
-    "env": {
-        "PORT": "3001",
-        "DB_MONGOOSE":"mongodb+srv://vercel-admin-user-64e64eabdaa0b91f9676987e:C2AC97eaKpMEEicl@cluster0.ygko73j.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-        "GOOGLE_CLIENT_ID":"155616110568-gqojdekg4qg1077fphhattir1eojnbid.apps.googleusercontent.com",
-        "GOOGLE_CLIENT_SECRET":"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",
-        "GOOGLE_CLIENT_CALLBACK":"https://back-doctor-app.vercel.app/v1/auth/google/callback",
-        "FRONTEND_URL":"https://front-doctor-app.vercel.app",
-        "BACKEND_URL":"https://back-doctor-app.vercel.app",
-        "MERCADOPAGO_CLIENT_ID": "5506143400291116",
-        "MERCADOPAGO_CLIENT_SECRET": "TP9BbamvfB0nMNcPzyUee9DewsPdv3TQ",
-        "MERCADOPAGO_OAUTH_REDIRECT_URL": "https://front-doctor-app.vercel.app/settings",
-        "MERCADOPAGO_OAUTH_TOKEN_URL": "https://api.mercadopago.com/oauth/token",
-        "MERCADOPAGO_LOCAL_ACCESS_TOKEN": "APP_USR-5506143400291116-092821-73185af7e2f5dd9f0f3eb67e97d7ceb3-135898274",
-        "MERCADOPAGO_LOCAL_PUBLIC_KEY": "APP_USR-82ac8079-e6e9-4467-8f13-2f98ff1f9d4e"
-    }
+    ]
 }
