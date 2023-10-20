@@ -1,6 +1,6 @@
 const { findUserByEmail } = require('../../controllers/users');
 const server = require('express').Router();
-const mercadopago = require ('mercadopago');
+const fetch = require('node-fetch');
 
 server.post('/create', async (req, res) => {
     try {
@@ -8,9 +8,7 @@ server.post('/create', async (req, res) => {
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            mercadopago.configure({
-                access_token: doctor?.mercadopago_access?.access_token
-            });
+            const access_token = doctor?.mercadopago_access?.access_token
             
             let commision = (unit_price * 10) / 100;
 
@@ -31,11 +29,18 @@ server.post('/create', async (req, res) => {
                 marketplace_fee: commision
             };
 
-            const response = await mercadopago.preferences.create(preference);
+            // const response = await mercadopago.preferences.create(preference);
+            const response = await fetch(`https://api.mercadopago.com/checkout/preferences?access_token=${access_token}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(preference)
+            })
+
+            const data = await response.json()
 
             return res.status(200).json({
                 success: true,
-                data: response.body
+                data
             });
         }
 
