@@ -9,8 +9,7 @@ server.post('/create', async (req, res) => {
 
         if(doctor) {
             const access_token = doctor?.mercadopago_access?.access_token
-            console.log({symptoms})
-            const stringifySymptom = JSON.stringify(symptoms)
+            const idsSimptoms = symptoms.map(symptom => symptom._id);
 
             let commision = (unit_price * 10) / 100;
 
@@ -23,7 +22,7 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "success": `${process.env.BACKEND_URL}/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${stringifySymptom}`,
+                    "success": `${process.env.BACKEND_URL}/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}`,
                     "failure": `${process.env.BACKEND_URL}/payments/feedback`,
                     "pending": `${process.env.BACKEND_URL}/payments/feedback`
                 },
