@@ -21,9 +21,9 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "success": `${process.env.BACKEND_URL}/v1/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${symptoms}`,
-                    "failure": `${process.env.BACKEND_URL}/v1/payments/feedback`,
-                    "pending": `${process.env.BACKEND_URL}/v1/payments/feedback`
+                    "success": `${process.env.BACKEND_URL}/payments/feedback?doctor=${user_email}&patient=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${symptoms}`,
+                    "failure": `${process.env.BACKEND_URL}/payments/feedback`,
+                    "pending": `${process.env.BACKEND_URL}/payments/feedback`
                 },
                 auto_return: "approved",
                 marketplace_fee: commision
