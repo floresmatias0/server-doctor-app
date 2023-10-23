@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 server.post('/create', async (req, res) => {
     try {
-        const { unit_price, user_email, startDateTime, endDateTime, patient_email, symptoms, patient_name } = req.body;
+        const { unit_price, user_email, tutor_email, startDateTime, endDateTime, patient_email, symptoms, patient_name } = req.body;
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
@@ -22,7 +22,7 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "success": `${process.env.BACKEND_URL}/payments/feedback?doctor=${user_email}&user=${patient_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patient=${patient_name}`,
+                    "success": `${process.env.BACKEND_URL}/payments/feedback?doctor=${user_email}&user=${tutor_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patientName=${patient_name}&patientEmail=${patient_email}`,
                     "failure": `${process.env.BACKEND_URL}/payments/feedback`,
                     "pending": `${process.env.BACKEND_URL}/payments/feedback`
                 },

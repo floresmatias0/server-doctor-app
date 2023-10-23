@@ -59,12 +59,11 @@ server.get('/webhook', async (req, res) => {
 
 server.get('/feedback', async (req, res) => {
     try {
-        const { payment_id, status, merchant_order_id, doctor, startDateTime, endDateTime, user, symptoms, patient } = req.query
+        const { payment_id, status, merchant_order_id, doctor, startDateTime, endDateTime, user, symptoms, patientName, patientEmail } = req.query
 
         if(status === "approved") {
-            // let symptomsParse = JSON.parse(symptoms)
-            // console.log({symptoms})
-            await createEvent(doctor, user, 'Consulta medica', startDateTime, endDateTime, symptoms, patient)
+
+            await createEvent(doctor, user, 'Consulta medica', startDateTime, endDateTime, symptoms, patientName, patientEmail)
             await createPayment({ payment_id, merchant_order_id, status, payer: user, doctor })
         }
 

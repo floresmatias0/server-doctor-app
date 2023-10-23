@@ -67,13 +67,13 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
-const createEvent = async (doctorEmail, userEmail, title, startDateTime, endDateTime, symptoms, patient) => {
+const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patientEmail, patientName) => {
     try {
         const doctor = await findUserByEmail(doctorEmail);
-        let user = await findUserByEmail(userEmail);
+        let user = await findUserByEmail(tutorEmail);
         
         if(!user) {
-            user = await findPatientByEmail(userEmail);
+            throw new Error("User not found")
         }
 
         if (!doctor) {
@@ -108,7 +108,8 @@ const createEvent = async (doctorEmail, userEmail, title, startDateTime, endDate
             },
             attendees: [
                 {'email': doctorEmail },
-                {'email': patientEmail }
+                {'email': tutorEmail },
+                {'email': patientEmail },
             ],
             conferenceData: {
                 createRequest: { requestId: randomString }
@@ -130,7 +131,7 @@ const createEvent = async (doctorEmail, userEmail, title, startDateTime, endDate
             ...response.data,
             userId: user._id,
             symptoms,
-            patient
+            patient: patientName
         })
 
         return {
