@@ -85,12 +85,12 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             clientSecret: process.env.GOOGLE_CLIENT_SECRET
         });
 
-        auth.setCredentials({ refresh_token: user.refreshToken });
+        auth.setCredentials({ refresh_token: doctor.refreshToken });
 
         const refreshedTokens = await auth.refreshAccessToken();
 
         if (refreshedTokens.credentials.access_token) {
-            await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
+            await updateUser(doctor._id, { accessToken: refreshedTokens.credentials.access_token });
         }
 
         const calendar = google.calendar('v3');
