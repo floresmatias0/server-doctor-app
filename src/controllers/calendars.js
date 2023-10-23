@@ -52,7 +52,7 @@ const createBooking = async (bookingData) => {
             end,
             hangoutLink,
             symptoms: symptomsIds,
-            name: patient
+            patient
         });
     }catch(err) {
         throw new Error(err.message);
@@ -67,7 +67,7 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
-const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patientEmail, patientName) => {
+const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patient) => {
     try {
         const doctor = await findUserByEmail(doctorEmail);
         let user = await findUserByEmail(tutorEmail);
@@ -130,7 +130,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             ...response.data,
             userId: user._id,
             symptoms,
-            patient: patientName
+            patient
         })
 
         return {
@@ -138,7 +138,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             data: response.data
         };
     } catch (err) {
-        throw new Error(err.message)
+        throw new Error("createEvent", err.message)
     }
 }
 

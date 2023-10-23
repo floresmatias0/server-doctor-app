@@ -10,7 +10,7 @@ const BookingSchema = new Schema({
   end: { type: Object },
   hangoutLink: { type: String },
   symptoms: [{ type: Schema.Types.ObjectId, ref: 'Symptom' }],
-  name: { type: String }
+  patient: { type: Schema.Types.ObjectId, ref: 'Patient' }
 }, {
     timestamps: true
 });
