@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { findAllBooking } = require('../../controllers/calendars');
 const mongoose = require('mongoose');
+const { findPatientById } = require('../../controllers/patients');
 const ObjectId = mongoose.Types.ObjectId;
 
 server.get('/', async (req, res) => {
@@ -67,7 +68,12 @@ server.get('/all-events/:id?', async (req, res) => {
         let events = []
 
         if(!id && doctor) {
-            events = await findAllBooking({ 'organizer.email': `${doctor}` })
+            events = await findAllBooking({ 'organizer.email': `${doctor}` }).populate('patient')
+
+            // events.forEach(async (event) => {
+            //     let patient = event?.patient
+            //     await findPatientById(patient)
+            // })
 
             return res.status(200).json({
                 success: true,
