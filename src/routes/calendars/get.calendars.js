@@ -65,45 +65,36 @@ server.get('/all-events/:id?', async (req, res) => {
         const { id } = req.params;
         const { doctor } = req.query;
 
-        let events = []
+        let events = [];
 
-        if(!id && doctor) {
-            events = await findAllBooking({ 'organizer.email': `${doctor}` }).populate('patient')
-
-            let aux = []
-            console.log({aux})
-            events.forEach(async (event) => {
-                let patientId = event?.patient
-                if(patientId) {
-                    console.log({patientId})
-                    let patient = await findPatientById(patientId)
-                    if(patient) {
-                        aux.push({...event, patient})
-                    }else {
-                        aux.push({...event})
-                    }
-                }
-            })
-            console.log({events})
-
-            return res.status(200).json({
-                success: true,
-                data: aux
-            });
+        if (!id && doctor) {
+            events = await findAllBooking({ 'organizer.email': `${doctor}` }).populate('patient');
+        } else {
+            events = await findAllBooking({ 'user_id': id });
         }
 
-        events = await findAllBooking({ 'user_id': id })
+        const eventPromises = events.map(async (event) => {
+            const patientId = event?.patient;
+            if (patientId) {
+                const patient = await findPatientById(patientId);
+                event.patient = patient; // Asigna el paciente al evento
+            }
+            return event;
+        });
+
+        const eventsWithPatients = await Promise.all(eventPromises);
 
         return res.status(200).json({
             success: true,
-            data: events
+            data: eventsWithPatients
         });
-    }catch(err) {
+    } catch (err) {
         return res.status(500).json({
             success: false,
             error: err.message
         });
     }
-})
+});
+
 
 module.exports = server;
