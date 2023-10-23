@@ -59,13 +59,13 @@ server.get('/webhook', async (req, res) => {
 
 server.get('/feedback', async (req, res) => {
     try {
-        const { payment_id, status, merchant_order_id, doctor, startDateTime, endDateTime, patient, symptoms } = req.query
+        const { payment_id, status, merchant_order_id, doctor, startDateTime, endDateTime, user, symptoms, patient } = req.query
 
         if(status === "approved") {
             // let symptomsParse = JSON.parse(symptoms)
             // console.log({symptoms})
-            await createEvent(doctor, patient, 'Consulta medica', startDateTime, endDateTime, symptoms)
-            await createPayment({ payment_id, merchant_order_id, status, payer: patient, doctor })
+            await createEvent(doctor, user, 'Consulta medica', startDateTime, endDateTime, symptoms, patient)
+            await createPayment({ payment_id, merchant_order_id, status, payer: user, doctor })
         }
 
         let url_redirect = `${process.env.FRONTEND_URL}/appointment?status=${status}&doctor=${doctor}&patient=${patient}&startDateTime=${startDateTime}&endDateTime=${endDateTime}`

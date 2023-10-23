@@ -27,7 +27,7 @@ const findBookingById = async (bookingId) => {
 
 const createBooking = async (bookingData) => {
     try {
-        const { id, status, summary, organizer, start, end, hangoutLink, userId, symptoms } = bookingData;
+        const { id, status, summary, organizer, start, end, hangoutLink, userId, symptoms, patient } = bookingData;
 
         const doctor = await findUserByEmail(organizer.email);
 
@@ -51,7 +51,8 @@ const createBooking = async (bookingData) => {
             start,
             end,
             hangoutLink,
-            symptoms: symptomsIds
+            symptoms: symptomsIds,
+            name: patient
         });
     }catch(err) {
         throw new Error(err.message);
@@ -66,16 +67,16 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
-const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endDateTime, symptoms) => {
+const createEvent = async (doctorEmail, userEmail, title, startDateTime, endDateTime, symptoms, patient) => {
     try {
-        const user = await findUserByEmail(doctorEmail);
-        let patient = await findUserByEmail(patientEmail);
+        const doctor = await findUserByEmail(doctorEmail);
+        let user = await findUserByEmail(userEmail);
         
-        if(!patient) {
-            patient = await findPatientByEmail(patientEmail);
+        if(!user) {
+            user = await findPatientByEmail(userEmail);
         }
 
-        if (!user) {
+        if (!doctor) {
             throw new Error("User not found")
         }
 
@@ -127,8 +128,9 @@ const createEvent = async (doctorEmail, patientEmail, title, startDateTime, endD
 
         await createBooking({
             ...response.data,
-            userId: patient._id,
-            symptoms
+            userId: user._id,
+            symptoms,
+            patient
         })
 
         return {

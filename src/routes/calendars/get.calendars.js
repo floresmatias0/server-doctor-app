@@ -2,6 +2,8 @@ const server = require('express').Router();
 const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { findAllBooking } = require('../../controllers/calendars');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 server.get('/', async (req, res) => {
     try {
@@ -57,11 +59,23 @@ server.get('/', async (req, res) => {
     }
 });
 
-server.get('/all-events/:id', async (req, res) => {
+server.get('/all-events/:id?', async (req, res) => {
     try {
         const { id } = req.params;
+        const { doctor } = req.query;
 
-        const events = await findAllBooking({ 'user_id': id })
+        let events = []
+
+        if(!id && doctor) {
+            events = await findAllBooking({ 'organizer.email': `${doctor}` })
+
+            return res.status(200).json({
+                success: true,
+                data: events
+            });
+        }
+
+        events = await findAllBooking({ 'user_id': id })
 
         return res.status(200).json({
             success: true,
