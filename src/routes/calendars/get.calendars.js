@@ -70,14 +70,25 @@ server.get('/all-events/:id?', async (req, res) => {
         if(!id && doctor) {
             events = await findAllBooking({ 'organizer.email': `${doctor}` }).populate('patient')
 
-            // events.forEach(async (event) => {
-            //     let patient = event?.patient
-            //     await findPatientById(patient)
-            // })
+            let aux = []
+            console.log({aux})
+            events.forEach(async (event) => {
+                let patientId = event?.patient
+                if(patientId) {
+                    console.log({patientId})
+                    let patient = await findPatientById(patientId)
+                    if(patient) {
+                        aux.push({...event, patient})
+                    }else {
+                        aux.push({...event})
+                    }
+                }
+            })
+            console.log({events})
 
             return res.status(200).json({
                 success: true,
-                data: events
+                data: aux
             });
         }
 
