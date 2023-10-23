@@ -108,8 +108,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             },
             attendees: [
                 {'email': doctorEmail },
-                {'email': tutorEmail },
-                {'email': patientEmail },
+                {'email': tutorEmail }
             ],
             conferenceData: {
                 createRequest: { requestId: randomString }
