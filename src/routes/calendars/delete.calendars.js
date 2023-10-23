@@ -33,23 +33,27 @@ server.delete('/:id', async (req, res) => {
 
         const calendar = google.calendar('v3');
 
-        calendar.events.delete({
+        await calendar.events.delete({
             calendarId: 'primary', // ID del calendario (puedes usar 'primary' para el calendario principal)
             eventId: booking.booking_id,
           }, async (err, response) => {
             if (err) {
               console.error('Error al eliminar el evento:', err);
-              return;
+              return res.status(500).json({
+                success: false,
+                error: err
+            });
             }
+
             console.log('Evento eliminado con éxito:', id);
             await updateBooking(booking._id, {
                 status: 'deleted'
             })
-        });
 
-        return res.status(200).json({
-            success: true,
-            data: 'Borrado con exito'
+            return res.status(200).json({
+                success: true,
+                data: 'Borrado con exito'
+            });
         });
     } catch (err) {
         return res.status(500).json({
