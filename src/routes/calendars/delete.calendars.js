@@ -38,11 +38,11 @@ server.delete('/:id', async (req, res) => {
             eventId: booking.booking_id,
           }, async (err, response) => {
             if (err) {
-              console.error('Error al eliminar el evento:', err);
-              return res.status(500).json({
-                success: false,
-                error: err
-            });
+                console.error('Error al eliminar el evento:', err);
+                return res.status(500).json({
+                    success: false,
+                    error: err
+                });
             }
 
             console.log('Evento eliminado con éxito:', id);
@@ -50,6 +50,7 @@ server.delete('/:id', async (req, res) => {
                 status: 'deleted'
             })
 
+            console.log('event deleted response', response);
             return res.status(200).json({
                 success: true,
                 data: 'Borrado con exito'

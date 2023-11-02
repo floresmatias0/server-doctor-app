@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const mongoose = require('mongoose');
 
 const findAllUsers = async (filters) => {
     try {
@@ -10,11 +11,13 @@ const findAllUsers = async (filters) => {
 
 const findUserById = async (userId) => {
     try {
-        const user = await User.findOne({_id: userId});
-        if (!user) {
-            throw new Error('User not found');
+        if(userId && mongoose.Types.ObjectId.isValid(userId)) {
+            const user = await User.findOne({_id: userId});
+            if (!user) {
+                throw new Error('User not found');
+            }
+            return user;
         }
-        return user;
     } catch (err) {
         console.log({err})
 

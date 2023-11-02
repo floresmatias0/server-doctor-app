@@ -79,6 +79,7 @@ server.get('/all-events/:id?', async (req, res) => {
                 const patient = await findPatientById(patientId);
                 event.patient = patient; // Asigna el paciente al evento
             }
+
             return event;
         });
 
