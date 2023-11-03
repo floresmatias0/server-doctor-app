@@ -28,7 +28,7 @@ server.use(session({
 }));
 
 server.use('/v1/', routes);
-server.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// server.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 server.use(passport.initialize());
 server.use(passport.session());
