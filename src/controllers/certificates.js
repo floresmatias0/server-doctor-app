@@ -14,9 +14,12 @@ const findCertificateById = async (certificateId) => {
 
 const createCertificate = async (certificateData) => {
     try {
-        const { filename, patientId, doctorId } = certificateData;
+        const { filename, name, url, type, patientId, doctorId } = certificateData;
         return await Certificate.create({
             filename,
+            name,
+            url,
+            type,
             patient: patientId,
             doctor: doctorId
         });

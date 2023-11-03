@@ -1,13 +1,18 @@
+const firebase = require("firebase/app");
+
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
+
 const path = require('path');
+
+const firebaseConfig = require('../firebase.config.js');
+firebase.initializeApp(firebaseConfig);
 
 const routes = require('./routes/index.js');
 const passport = require('./middlewares/passport.middleware.js');
 
 const server = express();
-
 server.name = 'API';
 
 server.use(express.urlencoded({ extended: true, limit: '250mb' }));
