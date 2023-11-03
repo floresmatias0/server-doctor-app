@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const findAllBooking = async (filters) => {
     try {
-        return await Booking.find(filters);
+        return await Booking.find(filters).populate('patient').populate('certificate');
     }catch(err) {
         throw new Error(err.message);
     }

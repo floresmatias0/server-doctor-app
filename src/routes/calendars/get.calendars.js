@@ -4,7 +4,6 @@ const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { findAllBooking } = require('../../controllers/calendars');
 const mongoose = require('mongoose');
 const { findPatientById } = require('../../controllers/patients');
-const ObjectId = mongoose.Types.ObjectId;
 
 server.get('/', async (req, res) => {
     try {
@@ -68,7 +67,7 @@ server.get('/all-events/:id?', async (req, res) => {
         let events = [];
 
         if (!id && doctor) {
-            events = await findAllBooking({ 'organizer.email': `${doctor}` }).populate('patient');
+            events = await findAllBooking({ 'organizer.email': `${doctor}` });
         } else {
             events = await findAllBooking({ 'user_id': id });
         }

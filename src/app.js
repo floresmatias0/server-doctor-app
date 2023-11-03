@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
+const path = require('path');
 
 const routes = require('./routes/index.js');
 const passport = require('./middlewares/passport.middleware.js');
@@ -22,6 +23,7 @@ server.use(session({
 }));
 
 server.use('/v1/', routes);
+server.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 server.use(passport.initialize());
 server.use(passport.session());

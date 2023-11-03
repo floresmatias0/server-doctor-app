@@ -3,9 +3,9 @@ const { createEvent } = require('../../controllers/calendars');
 
 server.post('/create-event', async (req, res) => {
     try {
-        const { doctorEmail, patientEmail, title, startDateTime, endDateTime } = req.body;
+        const { doctorEmail, patientEmail, title, startDateTime, endDateTime, patient } = req.body;
 
-        const response = await createEvent(doctorEmail, patientEmail, title, startDateTime, endDateTime)
+        const response = await createEvent(doctorEmail, patientEmail, title, startDateTime, endDateTime, patient)
 
         if(!response) {
             return res.status(500).json({

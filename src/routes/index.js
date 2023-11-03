@@ -21,6 +21,10 @@ const putPatients = require('./patients/put.patient.js');
 const getSymptoms = require('./symptoms/get.symptom.js');
 const postSymptoms = require('./symptoms/post.symptom.js');
 
+const postCertificates = require('./certificates/post.certificates.js');
+
+const upload = require('../middlewares/multer.middleware.js');
+
 
 const router = Router();
 
@@ -44,6 +48,8 @@ router.use('/patients', putPatients);
 
 router.use('/symptoms', getSymptoms);
 router.use('/symptoms', postSymptoms);
+
+router.use('/certificates', upload, postCertificates)
 
 
 module.exports = router;
