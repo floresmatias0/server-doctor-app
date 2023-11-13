@@ -28,7 +28,10 @@ server.delete('/:id', async (req, res) => {
         const refreshedTokens = await auth.refreshAccessToken();
 
         if (refreshedTokens.credentials.access_token) {
-            await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
+            const accessToken = refreshedTokens.credentials.access_token;
+
+            await updateUser(user._id, { accessToken })
+            auth.setCredentials({ access_token: accessToken });
         }
 
         const calendar = google.calendar('v3');
