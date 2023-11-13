@@ -83,6 +83,7 @@ server.get('/all-events/:id?', async (req, res) => {
         });
 
         const eventsWithPatients = await Promise.all(eventPromises);
+        eventsWithPatients.sort((a, b) => new Date(b.start.dateTime) - new Date(a.start.dateTime));
 
         return res.status(200).json({
             success: true,
