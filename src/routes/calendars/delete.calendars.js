@@ -39,6 +39,7 @@ server.delete('/:id', async (req, res) => {
         await calendar.events.delete({
             calendarId: 'primary', // ID del calendario (puedes usar 'primary' para el calendario principal)
             eventId: booking.booking_id,
+            auth: auth,
           }, async (err, response) => {
             if (err) {
                 console.error('Error al eliminar el evento:', err);
