@@ -1,5 +1,4 @@
 const server = require('express').Router();
-const axios = require('axios');
 const { createEvent } = require('../../controllers/calendars');
 const { createPayment } = require('../../controllers/payments');
 

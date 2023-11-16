@@ -35,7 +35,7 @@ const findPatientByEmail = async (patientEmail) => {
 
 const createPatient = async (patientData) => {
     try {
-        const { userId, name, lastName, email, birthdate, picture, genre, phone, history, dni, socialWork, proceedings } = patientData;
+        const { userId, name, lastName, email, birthdate, picture, genre, phone, history, dni, socialWork, socialWorkId, proceedings } = patientData;
         return await Patient.create({
             userId,
             name,
@@ -48,6 +48,7 @@ const createPatient = async (patientData) => {
             history,
             dni,
             socialWork,
+            socialWorkId,
             proceedings
         });
     }catch(err) {

@@ -1,5 +1,4 @@
 const Booking = require("../models/booking");
-const { findPatientByEmail } = require("./patients");
 const { findAllSymptoms } = require("./symptoms");
 const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
@@ -35,12 +34,17 @@ const createBooking = async (bookingData) => {
             throw new Error(err.message);
         }
 
-        const symptomsIds = []
+        const symptomsIds = [];
 
-        symptoms.split(',').forEach(async symptom => {
-            let findSymptom = await findAllSymptoms({ name: symptom })
-            if(findSymptom) symptomsIds.push(findSymptom._id)
-        })
+        const symptomsArray = symptoms.split(',');
+
+        for (const symptom of symptomsArray) {
+            const findSymptom = await findAllSymptoms({ name: symptom });
+
+            if (findSymptom) {
+                symptomsIds.push(findSymptom._id);
+            }
+        }
 
         return await Booking.create({
             booking_id: id,

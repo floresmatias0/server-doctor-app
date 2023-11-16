@@ -7,12 +7,13 @@ const PatientSchema = new Schema({
   birthdate: { type: Date },
   picture: { type: String },
   genre: { type: String, enum : ['male', 'female', 'other'], default: 'male' },
-  phone: { type: String },
+  phone: { type: Number },
   email: { type: String },
   history: { type: String },
-  dni: { type: String },
+  dni: { type: Number },
   socialWork: { type: String },
-  proceedings: { type: String },
+  socialWorkId: { type: Number },
+  proceedings: { type: String }
 }, {
     timestamps: true
 });

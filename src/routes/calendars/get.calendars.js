@@ -2,7 +2,6 @@ const server = require('express').Router();
 const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { findAllBooking } = require('../../controllers/calendars');
-const mongoose = require('mongoose');
 const { findPatientById } = require('../../controllers/patients');
 
 server.get('/', async (req, res) => {
