@@ -130,6 +130,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             conferenceDataVersion: 1
         });
 
+        console.log({ data: response.data })
         await createBooking({
             ...response.data,
             userId: user._id,
@@ -142,7 +143,14 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             data: response.data
         };
     } catch (err) {
-        throw new Error("createEvent", err.message)
+        let msg = JSON.stringify({
+            section: "createEvent",
+            errors: err.response.data.error.errors,
+            code: err.response.data.error.code,
+            message: err.response.data.error.message
+        })
+
+        throw new Error(msg)
     }
 }
 
