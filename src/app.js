@@ -17,7 +17,7 @@ server.use(express.urlencoded({ extended: true, limit: '250mb' }));
 server.use(express.json({ limit: '250mb' }));
 
 server.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://front-doctor-app.vercel.app',
   credentials: true
 }));
 
