@@ -31,6 +31,7 @@ server.get('/',
                 data: users
             });
         } catch (err) {
+            console.log(err.message)
             return res.status(500).json({
                 success: false,
                 error: err.message

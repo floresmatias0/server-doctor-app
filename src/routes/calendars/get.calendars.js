@@ -1,7 +1,7 @@
 const server = require('express').Router();
 const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
-const { findAllBooking } = require('../../controllers/calendars');
+const { findAllBooking, getChartsBookings } = require('../../controllers/calendars');
 const { findPatientById } = require('../../controllers/patients');
 
 server.get('/', async (req, res) => {
@@ -96,5 +96,21 @@ server.get('/all-events/:id?', async (req, res) => {
     }
 });
 
+server.get('/charts-booking', async (req, res) => {
+    try {
+        const dates = await getChartsBookings();
+
+        return res.status(200).json({
+            success: true,
+            data: dates
+        });
+    }catch(err) {
+        console.log(err.message)
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+})
 
 module.exports = server;

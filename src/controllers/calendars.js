@@ -51,7 +51,15 @@ const createBooking = async (bookingData) => {
             user_id: userId,
             status,
             summary,
-            organizer: doctor,
+            organizer: {
+                _id: doctor._id,
+                name: doctor.name,
+                email: doctor.email,
+                role: doctor.role,
+                picture: doctor.picture,
+                price: doctor.reservePrice,
+                time: doctor.reserveTime
+            },
             start,
             end,
             hangoutLink,
@@ -130,7 +138,6 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             conferenceDataVersion: 1
         });
 
-        console.log({ data: response.data })
         await createBooking({
             ...response.data,
             userId: user._id,
@@ -154,10 +161,91 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
     }
 }
 
+const getDaysOfCurrentMonth = () => {
+    const currentDate = new Date();
+    // const currentDate = new Date("2023-11-27T03:51:29.065Z")
+
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+    const daysOfTheMonth = [];
+    for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+        daysOfTheMonth.push(day.toString().padStart(2, '0'));
+    }
+
+    return {
+        firstDayOfMonth: firstDayOfMonth,
+        lastDayOfMonth: lastDayOfMonth,
+        daysOfTheMonth: daysOfTheMonth
+    };
+};
+
+const getBookingsCountByDay = async () => {
+    const { firstDayOfMonth, lastDayOfMonth } = getDaysOfCurrentMonth();
+
+    const bookingDays = [];
+    const countsByDay = [];
+
+    let currentDate = new Date(firstDayOfMonth);
+    while (currentDate <= lastDayOfMonth) {
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 1);
+
+        const currentISODate = currentDate.toISOString();
+        const nextISODate = nextDate.toISOString();
+
+        const bookingsCount = await Booking.countDocuments({
+            createdAt: { $gte: currentISODate, $lt: nextISODate }
+        });
+
+        countsByDay.push(bookingsCount);
+        bookingDays.push(currentISODate.substring(0, 10))
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const bookingStats = await Booking.aggregate([
+        {
+            $group: {
+                _id: {
+                    year: { $year: '$createdAt' },
+                    month: { $month: '$createdAt' }
+                },
+                totalReservations: { $sum: 1 },
+                totalPrice: { $sum: '$organizer.reservePrice' }
+            }
+        },
+        {
+            $sort: {
+                '_id.year': 1,
+                '_id.month': 1
+            }
+        }
+    ]);
+
+    return {
+        bookingDays,
+        countsByDay,
+        bookingStats
+    };
+}
+
+const getChartsBookings = async () => {
+    try {
+        return await getBookingsCountByDay()
+    }catch(err) {
+        throw new Error(err.message);
+    }
+}
+
 module.exports = {
     findAllBooking,
     findBookingById,
     createBooking,
     updateBooking,
-    createEvent
+    createEvent,
+    getChartsBookings
 };

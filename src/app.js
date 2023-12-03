@@ -4,8 +4,6 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 
-const path = require('path');
-
 const firebaseConfig = require('../firebase.config.js');
 firebase.initializeApp(firebaseConfig);
 
@@ -18,20 +16,30 @@ server.name = 'API';
 server.use(express.urlencoded({ extended: true, limit: '250mb' }));
 server.use(express.json({ limit: '250mb' }));
 
-server.use(cors());
+server.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 server.set('trust proxy', 1) // trust first proxy
+
+const isProduction = process.env.ENVIRONMENT === 'production';
+
 server.use(session({
   secret: 'keyboard cat',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: {
+    secure: isProduction
+  }
 }));
+
+server.use(passport.initialize());
+server.use(passport.session());
 
 server.use('/v1/', routes);
 // server.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-server.use(passport.initialize());
-server.use(passport.session());
 
 // Error catching endware.
 server.use((err, req, res, next) => { 

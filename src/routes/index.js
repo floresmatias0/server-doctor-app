@@ -24,30 +24,30 @@ const postSymptoms = require('./symptoms/post.symptom.js');
 const postCertificates = require('./certificates/post.certificates.js');
 
 const upload = require('../middlewares/multer.middleware.js');
-
+const { isAuthenticated } = require('../middlewares/auth.middleware.js');
 
 const router = Router();
 
 // Configuramos los routers
-router.use('/users', getUsers);
-router.use('/users', postUsers);
-router.use('/users', putUsers);
+router.use('/users', isAuthenticated, getUsers);
+router.use('/users', isAuthenticated, postUsers);
+router.use('/users', isAuthenticated, putUsers);
 
 router.use('/auth', getAuth);
 
-router.use('/calendars', getCalendars);
-router.use('/calendars', postCalendars);
-router.use('/calendars', deleteCalendars);
+router.use('/calendars', isAuthenticated, getCalendars);
+router.use('/calendars', isAuthenticated, postCalendars);
+router.use('/calendars', isAuthenticated, deleteCalendars);
 
-router.use('/payments', getPayments);
-router.use('/payments', postPayments);
+router.use('/payments', isAuthenticated, getPayments);
+router.use('/payments', isAuthenticated, postPayments);
 
-router.use('/patients', getPatients);
-router.use('/patients', postPatients);
-router.use('/patients', putPatients);
+router.use('/patients', isAuthenticated, getPatients);
+router.use('/patients', isAuthenticated, postPatients);
+router.use('/patients', isAuthenticated, putPatients);
 
-router.use('/symptoms', getSymptoms);
-router.use('/symptoms', postSymptoms);
+router.use('/symptoms', isAuthenticated, getSymptoms);
+router.use('/symptoms', isAuthenticated, postSymptoms);
 
 router.use('/certificates', upload, postCertificates)
 

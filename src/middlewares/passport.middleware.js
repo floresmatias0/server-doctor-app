@@ -30,6 +30,7 @@ passport.use(new GoogleStrategy({
                 })
                 .catch(err => {
                     console.log("User accessToken update failed! ", err.message);
+                    return done(err, null)
                 })
 
             return done(null, finded)
@@ -47,13 +48,16 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.serializeUser((user, done) => {
-    return done(null, user);
+    return done(null, user._id);
 });
 
 passport.deserializeUser((id, done) => {
-    // Buscar el usuario en la base de datos utilizando el 'id'
-    findUserById(id, (err, user) => {
-        done(err, user);
+    findUserById(id)
+    .then(user => {
+        return done(null, user);
+    })
+    .catch(err => {
+        return done(err, null)
     });
 });
 

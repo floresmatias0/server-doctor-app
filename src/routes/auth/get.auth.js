@@ -9,6 +9,7 @@ server.get('/google/', (req, res, next) => {
         scope.pop()
         scope.pop()
     }
+
     passport.authenticate('google', {
         scope,
         accessType: 'offline',
@@ -26,7 +27,7 @@ server.get('/google/callback',
 ));
 
 server.get('/google/success', (req, res) => {
-    const { user } = req.session.passport;
+    const { user } = req;
     res.redirect(process.env.FRONTEND_URL + '/verify?_valid=' + user?._id);
 });
 
@@ -38,10 +39,11 @@ server.get('/google/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.log('Error al destruir la sesión:', err);
+            throw new Error("No se pudo destruir la session")
         }
         res.clearCookie('connect.sid', {
             path: '/'
-        }); // Eliminar la cookie de sesión
+        });
         res.redirect(`${process.env.FRONTEND_URL}/login`); // Redirigir después de cerrar sesión
     });
 });
