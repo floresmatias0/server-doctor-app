@@ -16,19 +16,17 @@ server.name = 'API';
 server.use(express.urlencoded({ extended: true, limit: '250mb' }));
 server.use(express.json({ limit: '250mb' }));
 
-const whitelist = ['http://localhost:5173', 'https://front-doctor-app.vercel.app', ' http://127.0.0.1:5173']
-
 server.use(cors({
-  origin: function (origin, callback) {
-    if (whitelist.includes(origin) || !origin) {
-      callback(null, true)
-    } else {
-      console.log('origin:', origin, 'not allowed')
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
+  origin: 'https://front-doctor-app.vercel.app',
   credentials: true
 }));
+
+// server.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin','*');
+//   res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, PATCH, DELETE');
+//   res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
+//   next(); 
+// })
 
 server.set('trust proxy', 1) // trust first proxy
 
