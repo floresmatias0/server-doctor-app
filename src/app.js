@@ -16,7 +16,12 @@ server.name = 'API';
 server.use(express.urlencoded({ extended: true, limit: '250mb' }));
 server.use(express.json({ limit: '250mb' }));
 
-const whitelist = ['http://localhost:5173', 'https://front-doctor-app.vercel.app'];
+const whitelist = [
+  'http://localhost:5173',
+  'https://front-doctor-app.vercel.app',
+  'https://www.zonapediatrica.com.ar',
+  'https://zonapediatrica.com.ar'
+];
 
 const corsOptionsDelegate = function (req, callback) {
   let corsOptions;
