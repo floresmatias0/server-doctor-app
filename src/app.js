@@ -16,19 +16,23 @@ server.name = 'API';
 server.use(express.urlencoded({ extended: true, limit: '250mb' }));
 server.use(express.json({ limit: '250mb' }));
 
-server.use(cors({
-  origin: 'https://front-doctor-app.vercel.app',
-  credentials: true
-}));
+const whitelist = ['http://localhost:5173', 'https://front-doctor-app.vercel.app'];
 
-// server.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin','*');
-//   res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, PATCH, DELETE');
-//   res.setHeader('Access-Control-Allow-Methods','Content-Type','Authorization');
-//   next(); 
-// })
+const corsOptionsDelegate = function (req, callback) {
+  let corsOptions;
 
-server.set('trust proxy', 1) // trust first proxy
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true, credentials: true };
+  } else {
+    corsOptions = { origin: false }
+  }
+
+  callback(null, corsOptions)
+}
+
+server.use(cors(corsOptionsDelegate));
+
+server.set('trust proxy', 1)
 
 const isProduction = process.env.ENVIRONMENT === 'production';
 
@@ -45,10 +49,7 @@ server.use(passport.initialize());
 server.use(passport.session());
 
 server.use('/v1/', routes);
-// server.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-
-// Error catching endware.
 server.use((err, req, res, next) => { 
   const status = err.status || 500;
   const message = err.message || err;
