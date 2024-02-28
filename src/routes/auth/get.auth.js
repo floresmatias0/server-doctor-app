@@ -28,7 +28,7 @@ server.get('/google/callback',
 
 server.get('/google/success', (req, res) => {
     const { user } = req;
-    res.redirect(process.env.FRONTEND_URL + '/verify?_valid=' + user?._id);
+    res.redirect(process.env.FRONTEND_URL + '/verificacion?_valid=' + user?._id);
 });
 
 server.get('/google/failure', (req, res) => {
@@ -44,7 +44,7 @@ server.get('/google/logout', (req, res) => {
         res.clearCookie('connect.sid', {
             path: '/'
         });
-        res.redirect(`${process.env.FRONTEND_URL}/login`); // Redirigir después de cerrar sesión
+        res.redirect(`${process.env.FRONTEND_URL}/iniciar-sesion`); // Redirigir después de cerrar sesión
     });
 });
 
