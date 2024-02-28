@@ -11,7 +11,8 @@ const UserSchema = new Schema({
   mercadopago_access: { type: Object, default: '' },
   reservePrice: { type: Number, default: 500 },
   reserveTime: { type: Number, default: 15 },
-  super: { type: Boolean, default: false }
+  super: { type: Boolean, default: false },
+  especialization: { type: String, default: '' }
 }, {
     timestamps: true
 });
