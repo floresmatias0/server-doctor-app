@@ -137,7 +137,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             sendNotifications: true,
             conferenceDataVersion: 1
         });
-
+        console.log({response})
         await createBooking({
             ...response.data,
             userId: user._id,
