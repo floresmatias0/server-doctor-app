@@ -5,9 +5,9 @@ const PaymentSchema = new Schema({
   merchant_order_id: { type: String },
   status: { type: String },
   payer: { type: String },
-  doctor: { type: Object }
+  doctor: { type: Schema.Types.ObjectId, ref: 'User' }
 }, {
-    timestamps: true
+  timestamps: true
 });
 
 module.exports = model('Payment', PaymentSchema);

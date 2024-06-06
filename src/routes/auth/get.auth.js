@@ -1,20 +1,35 @@
 const passport = require('passport');
 const server = require('express').Router();
 
-server.get('/google/', (req, res, next) => {
-    const { role } = req.query
-    const scope = [ 'email', 'profile', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events' ]
+const calendarScopes = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events'
+];
 
-    if(role === "PATIENT") {
-        scope.pop()
-        scope.pop()
+// Middleware para definir el scope según el rol
+function defineGoogleScope(req, res, next) {
+    const { role } = req.query;
+
+    const baseScope = ['email', 'profile'];
+    let scope;
+
+    if (role === "PATIENT") {
+        scope = baseScope; // Pacientes no necesitan acceso al calendario
+    } else {
+        scope = [...baseScope, ...calendarScopes]; // Otros roles sí necesitan acceso al calendario
     }
 
+    req.googleScope = scope;
+    next();
+}
+
+// Ruta para iniciar la autenticación con Google
+server.get('/google/', defineGoogleScope, (req, res, next) => {
     passport.authenticate('google', {
-        scope,
+        scope: req.googleScope,
         accessType: 'offline',
         prompt: 'consent',
-        state: role,
+        state: req.query.role,
         passReqToCallback: true
     })(req, res, next);
 });

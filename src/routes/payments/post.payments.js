@@ -12,7 +12,7 @@ server.post('/create', async (req, res) => {
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            const access_token = doctor?.mercadopago_access?.access_token
+            const access_token = doctor?.mercadopago_access.toJSON()?.access_token
             const idsSimptoms = symptoms.map(symptom => symptom._id);
 
             let commision = (unit_price * 10) / 100;

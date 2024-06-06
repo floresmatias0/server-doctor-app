@@ -8,7 +8,7 @@ const CertificateSchema = new Schema({
   patient: { type: Schema.Types.ObjectId, ref: 'Patient' },
   doctor: { type: Schema.Types.ObjectId, ref: 'User' }
 }, {
-    timestamps: true
+  timestamps: true
 });
 
 module.exports = model('Certificate', CertificateSchema);

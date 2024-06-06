@@ -6,7 +6,7 @@ const PatientSchema = new Schema({
   lastName: { type: String },
   birthdate: { type: Date },
   picture: { type: String },
-  genre: { type: String, enum : ['male', 'female', 'other'], default: 'male' },
+  genre: { type: String, enum: ['male', 'female', 'other'], default: 'male' },
   phone: { type: Number },
   email: { type: String },
   history: { type: String },
@@ -15,7 +15,7 @@ const PatientSchema = new Schema({
   socialWorkId: { type: Number },
   proceedings: { type: String }
 }, {
-    timestamps: true
+  timestamps: true
 });
 
 module.exports = model('Patient', PatientSchema);
