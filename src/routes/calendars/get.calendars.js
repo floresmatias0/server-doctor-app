@@ -89,6 +89,7 @@ server.get('/all-events/:id?', async (req, res) => {
             data: eventsWithPatients
         });
     } catch (err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: err.message

@@ -7,14 +7,25 @@ const BookingSchema = new Schema({
   summary: { type: String },
   organizer: {
     email: { type: String },
-    name: { type: String }
+    name: { type: String },
+    role: { type: String },
+    picture: { type: String },
+    price: { type: Number },
+    time: { type: Number }
   },
-  start: { type: Date },
-  end: { type: Date },
+  start: {
+    dateTime: Date,
+    timeZone: String,
+  },
+  end: {
+      dateTime: Date,
+      timeZone: String,
+  },
   hangoutLink: { type: String },
   symptoms: [{ type: Schema.Types.ObjectId, ref: 'Symptom' }],
   patient: { type: Schema.Types.ObjectId, ref: 'Patient' },
-  certificate: [{ type: Schema.Types.ObjectId, ref: 'Certificate' }]
+  certificate: [{ type: Schema.Types.ObjectId, ref: 'Certificate' }],
+  details: { type: String, default: '' }
 }, {
   timestamps: true
 });

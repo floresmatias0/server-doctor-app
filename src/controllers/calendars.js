@@ -3,23 +3,26 @@ const { findAllSymptoms } = require("./symptoms");
 const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
 const { v4: uuidv4 } = require('uuid');
+const { ObjectId } = require('mongoose').Types;
 
 const findAllBooking = async (filters) => {
     try {
         return await Booking.find(filters).populate('patient').populate('certificate');
     }catch(err) {
+        console.log(err)
         throw new Error(err.message);
     }
 };
 
 const findBookingById = async (bookingId) => {
     try {
-        const booking = await Booking.findOne({_id: bookingId});
+        const booking = await Booking.findOne({_id: new ObjectId(bookingId)});
         if (!booking) {
             throw new Error('Booking not found');
         }
         return booking;
     } catch (err) {
+        console.log(err)
         throw new Error('Error fetching booking by ID');
     }
 };
@@ -73,7 +76,8 @@ const createBooking = async (bookingData) => {
 
 const updateBooking = async (id, bookingData) => {
     try {
-        return await Booking.findOneAndUpdate({ _id: id }, bookingData);
+        const booking = await Booking.findOneAndUpdate(new ObjectId(id), bookingData)
+        return booking
     }catch(err) {
         throw new Error(err.message);
     }
@@ -137,7 +141,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             sendNotifications: true,
             conferenceDataVersion: 1
         });
-        console.log({response})
+
         await createBooking({
             ...response.data,
             userId: user._id,
