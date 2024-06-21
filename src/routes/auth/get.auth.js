@@ -13,7 +13,7 @@ function defineGoogleScope(req, res, next) {
     const baseScope = ['email', 'profile'];
     let scope;
 
-    if (role === "PATIENT") {
+    if (role === "PACIENTE") {
         scope = baseScope; // Pacientes no necesitan acceso al calendario
     } else {
         scope = [...baseScope, ...calendarScopes]; // Otros roles sí necesitan acceso al calendario

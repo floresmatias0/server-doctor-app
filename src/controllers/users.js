@@ -40,9 +40,11 @@ const findUserByEmail = async (userEmail) => {
 
 const createUser = async (userData) => {
     try {
-        const { name, email, role, picture, googleId, accessToken, refreshToken } = userData;
+        const { name, firstName, lastName, email, role, picture, googleId, accessToken, refreshToken } = userData;
         return await User.create({
             name,
+            firstName,
+            lastName,
             email,
             role,
             picture,
