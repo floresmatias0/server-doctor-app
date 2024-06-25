@@ -34,7 +34,15 @@ server.get('/', async (req, res) => {
 
         const calendar = google.calendar('v3');
 
-        calendar.events.list({ auth, calendarId: 'primary' }, (err, response) => {
+        const timeMin = new Date().toISOString();
+
+        calendar.events.list({ 
+            auth,
+            calendarId: 'primary',
+            timeMin,
+            singleEvents: true, // Asegura que los eventos recurrentes se devuelvan como instancias únicas
+            orderBy: 'startTime' // Ordena los eventos por hora de inicio
+        }, (err, response) => {
 
             if (err) {
                 console.log(err)

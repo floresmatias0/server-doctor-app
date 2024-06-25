@@ -50,6 +50,7 @@ server.post('/mercadopago', async (req, res) => {
         })
 
         const data = await response.json();
+        console.log({ body, response: data })
         
         if(!data.access_token) {
             return res.status(400).json({

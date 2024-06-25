@@ -26,7 +26,7 @@ server.post('/create', async (req, res) => {
                   }
                 ],
                 back_urls: {
-                    "success": `${process.env.FRONTEND_URL}/turnos?status=approved&doctor=${user_email}&patient=${patient}&startDateTime=${startDateTime}&endDateTime=${endDateTime}`,
+                    "success": `${process.env.FRONTEND_URL}/turnos?status=approved`,
                     "failure": `${process.env.FRONTEND_URL}/turnos?status=rejected`,
                     "pending": `${process.env.FRONTEND_URL}/turnos?status=pending`
                 },
