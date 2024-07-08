@@ -105,6 +105,49 @@ server.get('/all-events/:id?', async (req, res) => {
     }
 });
 
+server.get('/doctor-patients/:doctorEmail', async (req, res) => {
+    try {
+        const { doctorEmail } = req.params;
+        if (!doctorEmail) {
+            return res.status(400).json({
+                success: false,
+                error: 'Doctor email is required'
+            });
+        }
+
+        // Obtener todas las reservas del doctor especificado
+        const events = await findAllBooking({ 'organizer.email': doctorEmail });
+
+        // Crear un Set para almacenar los IDs únicos de los pacientes
+        const patientIds = new Set();
+
+        // Recorrer las reservas y agregar los IDs de los pacientes al Set
+        events.forEach(event => {
+            if (event.patient) {
+                patientIds.add(event.patient);
+            }
+        });
+
+        // Convertir el Set a un array para obtener los datos de los pacientes
+        const uniquePatientIds = Array.from(patientIds);
+
+        // Obtener la información de los pacientes
+        const patientPromises = uniquePatientIds.map(patientId => findPatientById(patientId));
+        const patients = await Promise.all(patientPromises);
+
+        return res.status(200).json({
+            success: true,
+            data: patients
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 server.get('/charts-booking', async (req, res) => {
     try {
         const dates = await getChartsBookings();

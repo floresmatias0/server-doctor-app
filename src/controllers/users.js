@@ -19,8 +19,6 @@ const findUserById = async (userId) => {
             return user;
         }
     } catch (err) {
-        console.log({err})
-
         throw new Error('Error fetching user by ID');
     }
 };

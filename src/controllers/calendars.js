@@ -77,6 +77,7 @@ const createBooking = async (bookingData) => {
 const updateBooking = async (id, bookingData) => {
     try {
         const booking = await Booking.findOneAndUpdate(new ObjectId(id), bookingData)
+        booking.save();
         return booking
     }catch(err) {
         throw new Error(err.message);
