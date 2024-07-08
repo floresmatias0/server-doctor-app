@@ -1,7 +1,7 @@
 {
-  "name": "b",
+  "name": "service-zona-pediatrica",
   "version": "1.0.0",
-  "description": "backend to e-commerce",
+  "description": "mvc to control data doctors",
   "author": {
     "name": "Flores Matias Leandro"
   },
