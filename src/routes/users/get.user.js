@@ -10,7 +10,7 @@ server.get('/',
 
             try {
                 const users = await findAllUsers(parseFilters);
-    
+
                 return res.status(200).json({
                     success: true,
                     data: users

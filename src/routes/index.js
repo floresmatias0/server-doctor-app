@@ -23,6 +23,7 @@ const getSymptoms = require('./symptoms/get.symptom.js');
 const postSymptoms = require('./symptoms/post.symptom.js');
 
 const postCertificates = require('./certificates/post.certificates.js');
+const deleteCertificates = require('./certificates/delete.certificates.js');
 
 const upload = require('../middlewares/multer.middleware.js');
 // const { isAuthenticated } = require('../middlewares/auth.middleware.js');
@@ -51,7 +52,9 @@ router.use('/patients', putPatients);
 router.use('/symptoms', getSymptoms);
 router.use('/symptoms', postSymptoms);
 
+router.use('/certificates', deleteCertificates)
 router.use('/certificates', upload, postCertificates)
+router.use('/uploads', upload, postCertificates)
 
 
 module.exports = router;

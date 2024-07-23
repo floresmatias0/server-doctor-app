@@ -6,18 +6,25 @@ const { findUserByEmail } = require('../../controllers/users');
 const { createEvent } = require('../../controllers/calendars');
 const { createPayment } = require('../../controllers/payments');
 
+// const { MercadoPagoConfig, Preference } = require('mercadopago'); --> PRUEBA NUEVO METODO
+
 server.post('/create', async (req, res) => {
     try {
         const { unit_price, user_email, tutor_email, startDateTime, endDateTime, patient, symptoms } = req.body;
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            const access_token = doctor?.mercadopago_access.toJSON()?.access_token
+            const access_token = doctor?.mercadopago_access?.access_token
+
+            // const client = new MercadoPagoConfig({ accessToken: access_token }); --> PRUEBA NUEVO METODO
+            // const payment = new Payment(client) --> PRUEBA NUEVO METODO
+            // const preference = new Preference(client) --> PRUEBA NUEVO METODO
+
             const idsSimptoms = symptoms.map(symptom => symptom._id);
-
+            
             let commision = (unit_price * 10) / 100;
-
-            let preference = {
+            
+            let body = {
                 items: [
                   {
                     title: 'Consulta medica',
@@ -36,14 +43,16 @@ server.post('/create', async (req, res) => {
                 statement_descriptor: "Zona Pediatrica"
             };
 
+            // const data = await payment.create(body) --> PRUEBA NUEVO METODO
+
             const response = await fetch(`https://api.mercadopago.com/checkout/preferences?access_token=${access_token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(preference)
+                body: JSON.stringify(body)
             })
 
             const data = await response.json()
-
+            console.log({data})
             return res.status(200).json({
                 success: true,
                 data
@@ -55,6 +64,7 @@ server.post('/create', async (req, res) => {
             error: "Usuario no encontrado"
         });
     }catch(err) {
+        console.log(err?.message)
         return res.status(500).json({
             success: false,
             error: err.message

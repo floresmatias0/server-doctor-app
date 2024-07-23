@@ -15,7 +15,8 @@ const PatientSchema = new Schema({
   identityId: { type: Number, default: 0 },
   socialWork: { type: String },
   socialWorkId: { type: Number },
-  proceedings: { type: String }
+  proceedings: { type: String },
+  documents: [{ downloadURL: String, fileName: String }]
 }, {
   timestamps: true
 });

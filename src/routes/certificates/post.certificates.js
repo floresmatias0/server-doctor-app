@@ -58,4 +58,35 @@ server.post('/uploads', async (req, res) => {
     }
 });
 
+server.post('/', async (req, res) => {
+    try {
+        const files = req.files;
+
+        const fileUrls = await Promise.all(
+            files.map(async (file) => {
+                const uniqueSuffix = Date.now();
+                const fileName = uniqueSuffix + '-' + file.originalname;
+                const storageRef = ref(storage, `files/${fileName}`)
+                const metadata = { contentType: file.mimetype };
+                const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+
+                console.log('File successfully uploaded.');
+
+                return { downloadURL, fileName }
+            })
+        );
+ 
+        return res.status(200).json({
+            success: true,
+            data: fileUrls
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 module.exports = server;

@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   googleId: { type: String, default: '' },
   accessToken: { type: String, default: '' },
   refreshToken: { type: String, default: '' },
-  mercadopago_access: { type: Map, of: String, default: {} },
+  mercadopago_access: { type: Object, default: {} },
   reservePrice: { type: Number, default: 500 },
   reserveTime: { type: Number, default: 15 },
   super: { type: Boolean, default: false },
