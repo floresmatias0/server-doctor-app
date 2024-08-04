@@ -1,12 +1,11 @@
 const axios = require('axios');
-const fetch = require('node-fetch');
 const server = require('express').Router();
 
 const { findUserByEmail } = require('../../controllers/users');
 const { createEvent } = require('../../controllers/calendars');
 const { createPayment } = require('../../controllers/payments');
 
-// const { MercadoPagoConfig, Preference } = require('mercadopago'); --> PRUEBA NUEVO METODO
+//const { MercadoPagoConfig, Preference } = require('mercadopago'); // --> PRUEBA NUEVO METODO
 
 server.post('/create', async (req, res) => {
     try {
@@ -16,34 +15,47 @@ server.post('/create', async (req, res) => {
         if(doctor) {
             const access_token = doctor?.mercadopago_access?.access_token
 
-            // const client = new MercadoPagoConfig({ accessToken: access_token }); --> PRUEBA NUEVO METODO
-            // const payment = new Payment(client) --> PRUEBA NUEVO METODO
-            // const preference = new Preference(client) --> PRUEBA NUEVO METODO
+            //const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
+            //const preference = new Preference(client) // --> PRUEBA NUEVO METODO
 
             const idsSimptoms = symptoms.map(symptom => symptom._id);
             
             let commision = (unit_price * 10) / 100;
+
+            const generateUniqueId = (length = 16) => {
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                const charactersLength = characters.length;
+                for (let i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            }
             
+            const uniqueId = generateUniqueId();
+
             let body = {
-                items: [
-                  {
-                    title: 'Consulta medica',
-                    unit_price,
-                    quantity: 1
-                  }
-                ],
                 back_urls: {
                     "success": `${process.env.FRONTEND_URL}/turnos?status=approved`,
-                    "failure": `${process.env.FRONTEND_URL}/turnos?status=rejected`,
-                    "pending": `${process.env.FRONTEND_URL}/turnos?status=pending`
+                    "pending": `${process.env.FRONTEND_URL}/turnos?status=pending`,
+                    "failure": `${process.env.FRONTEND_URL}/turnos?status=rejected`
                 },
-                auto_return: "all",
+                items: [
+                  {
+                    id: `Medic ${uniqueId}`,
+                    title: 'Consulta medica',
+                    description: "Reunion privada con un medico especializado",
+                    category_id: "turns",
+                    currency_id: "ARS",
+                    quantity: 1,
+                    unit_price
+                  }
+                ],
+                statement_descriptor: "Zona Pediatrica",
                 marketplace_fee: commision,
-                notification_url: `${process.env.NOTIFICATION_URL}?access_token=${access_token}&doctor=${user_email}&user=${tutor_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patient=${patient}`,
-                statement_descriptor: "Zona Pediatrica"
+                notification_url: `${process.env.NOTIFICATION_URL}/payments/webhook/mercadopago?access_token=${access_token}&doctor=${user_email}&user=${tutor_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patient=${patient}`,
             };
-
-            // const data = await payment.create(body) --> PRUEBA NUEVO METODO
+            //const data = await preference.create({ body }) // --> PRUEBA NUEVO METODO
 
             const response = await fetch(`https://api.mercadopago.com/checkout/preferences?access_token=${access_token}`, {
                 method: 'POST',
@@ -52,7 +64,7 @@ server.post('/create', async (req, res) => {
             })
 
             const data = await response.json()
-            console.log({data})
+
             return res.status(200).json({
                 success: true,
                 data
@@ -76,7 +88,7 @@ server.post('/webhook/mercadopago', async (req, res) => {
     try {
         const { action } = req?.body;
         const { access_token } = req?.query;
-
+        console.log(req?.body, req?.query)
         if (action !== "payment.created") {
             return res.status(200).json({
                 success: false,
