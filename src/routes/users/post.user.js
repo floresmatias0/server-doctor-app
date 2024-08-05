@@ -2,6 +2,11 @@ const server = require('express').Router();
 const { createUser, updateUser } = require('../../controllers/users');
 const fetch = require('node-fetch');
 
+const { MercadoPagoConfig, OAuth } = require('mercadopago');
+const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN });
+
+const oauth = new OAuth(client);
+
 server.post('/',
     async (req, res) => {
         const data = req.body;
@@ -42,24 +47,18 @@ server.post('/mercadopago', async (req, res) => {
             "code": code,
             "redirect_uri": process.env.MERCADOPAGO_OAUTH_REDIRECT_URL
         }
-
-        const response = await fetch(process.env.MERCADOPAGO_OAUTH_TOKEN_URL, {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: { 'Content-Type': 'application/json' }
-        })
-
-        const data = await response.json();
         
-        if(!data.access_token) {
+        const response = await oauth.create({body})
+        
+        if(!response?.access_token) {
             return res.status(400).json({
                 success: false,
-                error: { data, body }
+                error: { response, body }
             });
         }
 
         await updateUser(user_id, {
-            mercadopago_access: data
+            mercadopago_access: response
         })
 
         return res.status(200).json({

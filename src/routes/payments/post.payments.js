@@ -5,7 +5,7 @@ const { findUserByEmail } = require('../../controllers/users');
 const { createEvent } = require('../../controllers/calendars');
 const { createPayment } = require('../../controllers/payments');
 
-//const { MercadoPagoConfig, Preference } = require('mercadopago'); // --> PRUEBA NUEVO METODO
+const { MercadoPagoConfig, Preference } = require('mercadopago'); // --> PRUEBA NUEVO METODO
 
 server.post('/create', async (req, res) => {
     try {
@@ -15,8 +15,8 @@ server.post('/create', async (req, res) => {
         if(doctor) {
             const access_token = doctor?.mercadopago_access?.access_token
 
-            //const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
-            //const preference = new Preference(client) // --> PRUEBA NUEVO METODO
+            const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
+            const preference = new Preference(client); // --> PRUEBA NUEVO METODO
 
             const idsSimptoms = symptoms.map(symptom => symptom._id);
             
@@ -34,36 +34,33 @@ server.post('/create', async (req, res) => {
             
             const uniqueId = generateUniqueId();
 
-            let body = {
-                back_urls: {
-                    "success": `${process.env.FRONTEND_URL}/turnos?status=approved`,
-                    "pending": `${process.env.FRONTEND_URL}/turnos?status=pending`,
-                    "failure": `${process.env.FRONTEND_URL}/turnos?status=rejected`
-                },
+            const body = {
                 items: [
                   {
-                    id: `Medic ${uniqueId}`,
-                    title: 'Consulta medica',
-                    description: "Reunion privada con un medico especializado",
-                    category_id: "turns",
-                    currency_id: "ARS",
-                    quantity: 1,
-                    unit_price
-                  }
+                      id: `Medic ${uniqueId}`,
+                      title: 'Consulta medica',
+                      description: "Reunion privada con un medico especializado",
+                      category_id: "turns",
+                      currency_id: "ARS",
+                      quantity: 1,
+                      unit_price
+                  },
                 ],
-                statement_descriptor: "Zona Pediatrica",
                 marketplace_fee: commision,
+                back_urls: {
+                  success: `${process.env.FRONTEND_URL}/turnos?status=approved`,
+                  failure: `${process.env.FRONTEND_URL}/turnos?status=failure`,
+                  pending: `${process.env.FRONTEND_URL}/turnos?status=pending`,
+                },
+                expires: false,
+                auto_return: 'all',
+                binary_mode: true,
+                marketplace: 'marketplace',
                 notification_url: `${process.env.NOTIFICATION_URL}/payments/webhook/mercadopago?access_token=${access_token}&doctor=${user_email}&user=${tutor_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patient=${patient}`,
+                operation_type: 'regular_payment',
+                statement_descriptor: 'Zona Pediatrica',
             };
-            //const data = await preference.create({ body }) // --> PRUEBA NUEVO METODO
-
-            const response = await fetch(`https://api.mercadopago.com/checkout/preferences?access_token=${access_token}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            })
-
-            const data = await response.json()
+            const data = await preference.create({ body }) // --> PRUEBA NUEVO METODO
 
             return res.status(200).json({
                 success: true,
