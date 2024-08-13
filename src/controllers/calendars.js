@@ -144,7 +144,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
         });
 
         await createBooking({
-            ...response.data,
+            ...response?.data,
             userId: user._id,
             symptoms,
             patient
@@ -152,9 +152,10 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
 
         return {
             success: true,
-            data: response.data
+            data: response?.data
         };
     } catch (err) {
+
         let msg = JSON.stringify({
             section: "createEvent",
             errors: err.response.data.error.errors,

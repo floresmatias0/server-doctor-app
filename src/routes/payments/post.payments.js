@@ -14,12 +14,21 @@ server.post('/create', async (req, res) => {
 
         if(doctor) {
             const access_token = doctor?.mercadopago_access?.access_token
-
+            // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' --> TOKEN CUENTA DE PRUEBA
             const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
             const preference = new Preference(client); // --> PRUEBA NUEVO METODO
 
-            const idsSimptoms = symptoms.map(symptom => symptom._id);
-            
+            const idsSimptoms = symptoms?.map(symptom => symptom._id);
+
+            const notificationData = { 
+                d: user_email,
+                u: tutor_email,
+                sd: new Date(startDateTime).getTime(),
+                ed: new Date(endDateTime).getTime(),
+                p: patient,
+                s: idsSimptoms
+            };
+
             let commision = (unit_price * 10) / 100;
 
             const generateUniqueId = (length = 16) => {
@@ -56,10 +65,11 @@ server.post('/create', async (req, res) => {
                 auto_return: 'all',
                 binary_mode: true,
                 marketplace: 'marketplace',
-                notification_url: `${process.env.NOTIFICATION_URL}/payments/webhook/mercadopago?access_token=${access_token}&doctor=${user_email}&user=${tutor_email}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&symptoms=${idsSimptoms}&patient=${patient}`,
+                notification_url: `${process.env.NOTIFICATION_URL}?d=${notificationData.d}&u=${notificationData.u}&sd=${notificationData.sd}&ed=${notificationData.ed}&p=${notificationData.p}&s=${notificationData.s}`,
                 operation_type: 'regular_payment',
                 statement_descriptor: 'Zona Pediatrica',
             };
+
             const data = await preference.create({ body }) // --> PRUEBA NUEVO METODO
 
             return res.status(200).json({
@@ -84,8 +94,11 @@ server.post('/create', async (req, res) => {
 server.post('/webhook/mercadopago', async (req, res) => {
     try {
         const { action } = req?.body;
-        const { access_token } = req?.query;
-        console.log(req?.body, req?.query)
+        const { d, id } = req?.query;
+
+        const doctor = await findUserByEmail(d);
+        const access_token = doctor?.mercadopago_access?.access_token;
+
         if (action !== "payment.created") {
             return res.status(200).json({
                 success: false,
@@ -104,18 +117,24 @@ server.post('/webhook/mercadopago', async (req, res) => {
 
         if(response && response?.data) {
             const { data } = response;
-            const { doctor, user, startDateTime, endDateTime, symptoms, patient } = req.query;
-
-            const doc = await findUserByEmail(doctor);
+            const { u, sd, ed, s, p } = req?.query;
 
             if(data?.status === "approved") {
-                await createEvent(doctor, user, 'Consulta medica', startDateTime, endDateTime, symptoms, patient)
+
+                const offset = -3 * 60; // Argentina tiene un offset de -3 horas respecto a UTC
+                const date = new Date(Number(sd));
+                const date2 = new Date(Number(ed));
+
+                const startDateTime = new Date(date.getTime() + offset * 60000).toISOString();
+                const endDateTime = new Date(date2.getTime() + offset * 60000).toISOString();
+
+                await createEvent(d, u, 'Consulta medica', startDateTime, endDateTime, s, p)
                 await createPayment({
                     payment_id: data?.id,
-                    merchant_order_id: '',
+                    merchant_order_id: id,
                     status: data?.status,
-                    payer: user,
-                    doctor: doc
+                    payer: u,
+                    doctor
                 })
             }
 
@@ -130,7 +149,6 @@ server.post('/webhook/mercadopago', async (req, res) => {
             message: "No se pudo obtener los datos del pago"
         });
     }catch(err) {
-        console.log({err})
         return res.status(500).json({
             success: false,
             error: err.message

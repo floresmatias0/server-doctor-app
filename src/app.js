@@ -21,7 +21,8 @@ const whitelist = [
   'https://front-doctor-app.vercel.app',
   'https://www.zonapediatrica.com.ar',
   'https://zonapediatrica.com.ar',
-  'https://zw89lvvh-5173.brs.devtunnels.ms'
+  'https://zw89lvvh-5173.brs.devtunnels.ms',
+  'https://0tsm88jn-5173.brs.devtunnels.ms'
 ];
 
 const corsOptionsDelegate = function (req, callback) {
