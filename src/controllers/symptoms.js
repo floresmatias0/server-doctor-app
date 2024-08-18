@@ -18,7 +18,16 @@ const createSymptom = async (data) => {
     }
 }
 
+const deleteSymptom = async (id) => {
+    try {
+        await Symptom.deleteOne({ _id: id });
+    }catch(err) {
+        throw new Error(err.message);
+    }
+}
+
 module.exports = {
     findAllSymptoms,
-    createSymptom
+    createSymptom,
+    deleteSymptom
 };

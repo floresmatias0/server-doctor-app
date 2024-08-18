@@ -169,7 +169,6 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
 
 const getDaysOfCurrentMonth = () => {
     const currentDate = new Date();
-    // const currentDate = new Date("2023-11-27T03:51:29.065Z")
 
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
@@ -208,11 +207,13 @@ const getBookingsCountByDay = async () => {
         });
 
         countsByDay.push(bookingsCount);
-        bookingDays.push(currentISODate.substring(0, 10))
+        bookingDays.push(currentISODate.substring(0, 10));
 
+        // Increment currentDate only once
         currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // Aggregate bookings by month and year
     const bookingStats = await Booking.aggregate([
         {
             $group: {
@@ -241,11 +242,12 @@ const getBookingsCountByDay = async () => {
 
 const getChartsBookings = async () => {
     try {
-        return await getBookingsCountByDay()
-    }catch(err) {
+        return await getBookingsCountByDay();
+    } catch (err) {
         throw new Error(err.message);
     }
 }
+
 
 module.exports = {
     findAllBooking,

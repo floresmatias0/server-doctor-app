@@ -22,7 +22,8 @@ const whitelist = [
   'https://www.zonapediatrica.com.ar',
   'https://zonapediatrica.com.ar',
   'https://zw89lvvh-5173.brs.devtunnels.ms',
-  'https://0tsm88jn-5173.brs.devtunnels.ms'
+  'https://0tsm88jn-5173.brs.devtunnels.ms',
+  'https://zw89lvvh.brs.devtunnels.ms:5173'
 ];
 
 const corsOptionsDelegate = function (req, callback) {

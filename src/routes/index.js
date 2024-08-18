@@ -4,6 +4,7 @@ const { Router } = require('express');
 const getUsers = require('./users/get.user.js');
 const postUsers = require('./users/post.user.js');
 const putUsers = require('./users/put.user.js');
+const deleteUsers = require('./users/delete.user.js');
 
 const getAuth = require('./auth/get.auth.js');
 
@@ -21,6 +22,7 @@ const putPatients = require('./patients/put.patient.js');
 
 const getSymptoms = require('./symptoms/get.symptom.js');
 const postSymptoms = require('./symptoms/post.symptom.js');
+const deleteSymptoms = require('./symptoms/delete.symptom.js');
 
 const postCertificates = require('./certificates/post.certificates.js');
 const deleteCertificates = require('./certificates/delete.certificates.js');
@@ -34,6 +36,7 @@ const router = Router();
 router.use('/users', getUsers);
 router.use('/users', postUsers);
 router.use('/users', putUsers);
+router.use('/users', deleteUsers);
 
 router.use('/auth', getAuth);
 
@@ -51,6 +54,7 @@ router.use('/patients', putPatients);
 
 router.use('/symptoms', getSymptoms);
 router.use('/symptoms', postSymptoms);
+router.use('/symptoms', deleteSymptoms);
 
 router.use('/certificates', deleteCertificates)
 router.use('/certificates', upload, postCertificates)

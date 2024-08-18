@@ -1,5 +1,7 @@
 const User = require("../models/user");
+const Patient = require("../models/patient");
 const mongoose = require('mongoose');
+const { findAllPatients } = require("./patients");
 
 const findAllUsers = async (filters) => {
     try {
@@ -63,10 +65,27 @@ const updateUser = async (id, userData) => {
     }
 }
 
+const deleteUser = async (id) => {
+    try {
+        await User.deleteOne({ _id: id });
+        const patients = await findAllPatients({userId: id});
+
+        if(patients?.length > 0) {
+            for(let i = 0; i < patients?.length; i++) {
+                await Patient.deleteOne({ _id: patients[i]?._id })
+            }
+        }
+    }catch(err) {
+        console.log(err)
+        throw new Error(err.message);
+    }
+}
+
 module.exports = {
     findAllUsers,
     findUserById,
     findUserByEmail,
     createUser,
-    updateUser
+    updateUser,
+    deleteUser
 };
