@@ -12,10 +12,21 @@ const createPayment = async (data) => {
             doctor
         });
     }catch(err) {
+        console.log(err)
+        throw new Error(err.message)
+    }
+}
+
+const getPayment = async (id) => {
+    try {
+        return await Payment.findOne({ payment_id: id } );
+    }catch(err) {
+        console.log(err)
         throw new Error(err.message)
     }
 }
 
 module.exports = {
-    createPayment
+    createPayment,
+    getPayment
 };

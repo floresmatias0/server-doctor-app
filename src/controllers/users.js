@@ -3,10 +3,20 @@ const Patient = require("../models/patient");
 const mongoose = require('mongoose');
 const { findAllPatients } = require("./patients");
 
-const findAllUsers = async (filters) => {
+const findAllUsers = async (filters = {}) => {
     try {
-        return await User.find(filters);
-    }catch(err) {
+        const query = {};
+
+        if (filters.role && Array.isArray(filters.role) && filters.role.length > 0) {
+            query.role = { $in: filters.role };
+        }
+
+        if(filters.role && !Array.isArray(filters.role)) {
+            query.role = filters.role;
+        }
+
+        return await User.find(query);
+    } catch (err) {
         throw new Error(err.message);
     }
 };

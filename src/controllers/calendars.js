@@ -37,18 +37,6 @@ const createBooking = async (bookingData) => {
             throw new Error(err.message);
         }
 
-        const symptomsIds = [];
-
-        const symptomsArray = symptoms.split(',');
-
-        for (const symptom of symptomsArray) {
-            const findSymptom = await findAllSymptoms({ name: symptom });
-
-            if (findSymptom) {
-                symptomsIds.push(findSymptom._id);
-            }
-        }
-
         return await Booking.create({
             booking_id: id,
             user_id: userId,
@@ -66,7 +54,7 @@ const createBooking = async (bookingData) => {
             start,
             end,
             hangoutLink,
-            symptoms: symptomsIds,
+            symptoms,
             patient
         });
     }catch(err) {
@@ -88,7 +76,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
     try {
         const doctor = await findUserByEmail(doctorEmail);
         let user = await findUserByEmail(tutorEmail);
-        
+
         if(!user) {
             throw new Error("User not found")
         }
@@ -145,6 +133,14 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
 
         await createBooking({
             ...response?.data,
+            start: {
+                dateTime: startDateTime,
+                timeZone: 'America/Argentina/Buenos_Aires'
+            },
+            end: {
+                dateTime: endDateTime,
+                timeZone: 'America/Argentina/Buenos_Aires'
+            },
             userId: user._id,
             symptoms,
             patient
@@ -155,12 +151,11 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
             data: response?.data
         };
     } catch (err) {
-
         let msg = JSON.stringify({
             section: "createEvent",
-            errors: err.response.data.error.errors,
-            code: err.response.data.error.code,
-            message: err.response.data.error.message
+            errors: err?.response?.data?.error?.errors,
+            code: err?.response?.data?.error?.code,
+            message: err?.response?.data?.error?.message
         })
 
         throw new Error(msg)

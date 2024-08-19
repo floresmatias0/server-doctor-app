@@ -3,7 +3,7 @@ const server = require('express').Router();
 
 const { findUserByEmail } = require('../../controllers/users');
 const { createEvent } = require('../../controllers/calendars');
-const { createPayment } = require('../../controllers/payments');
+const { createPayment, getPayment } = require('../../controllers/payments');
 
 const { MercadoPagoConfig, Preference } = require('mercadopago'); // --> PRUEBA NUEVO METODO
 
@@ -13,8 +13,8 @@ server.post('/create', async (req, res) => {
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            const access_token = doctor?.mercadopago_access?.access_token
-            // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' --> TOKEN CUENTA DE PRUEBA
+            // const access_token = doctor?.mercadopago_access?.access_token
+            const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
             const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
             const preference = new Preference(client); // --> PRUEBA NUEVO METODO
 
@@ -23,8 +23,8 @@ server.post('/create', async (req, res) => {
             const notificationData = { 
                 d: user_email,
                 u: tutor_email,
-                sd: new Date(startDateTime).getTime(),
-                ed: new Date(endDateTime).getTime(),
+                sd: startDateTime,
+                ed: endDateTime,
                 p: patient,
                 s: idsSimptoms
             };
@@ -65,9 +65,12 @@ server.post('/create', async (req, res) => {
                 auto_return: 'all',
                 binary_mode: true,
                 marketplace: 'marketplace',
-                notification_url: `${process.env.NOTIFICATION_URL}?d=${notificationData.d}&u=${notificationData.u}&sd=${notificationData.sd}&ed=${notificationData.ed}&p=${notificationData.p}&s=${notificationData.s}`,
+                notification_url: `${process.env.NOTIFICATION_URL}?d=${user_email}`,
                 operation_type: 'regular_payment',
                 statement_descriptor: 'Zona Pediatrica',
+                metadata: {
+                    notificationData
+                }
             };
 
             const data = await preference.create({ body }) // --> PRUEBA NUEVO METODO
@@ -94,11 +97,12 @@ server.post('/create', async (req, res) => {
 server.post('/webhook/mercadopago', async (req, res) => {
     try {
         const { action } = req?.body;
-        const { d, id } = req?.query;
+        const { d } = req?.query;
 
         const doctor = await findUserByEmail(d);
-        const access_token = doctor?.mercadopago_access?.access_token;
-
+        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
+        // const access_token = doctor?.mercadopago_access?.access_token;
+  
         if (action !== "payment.created") {
             return res.status(200).json({
                 success: false,
@@ -114,24 +118,21 @@ server.post('/webhook/mercadopago', async (req, res) => {
                 'Content-Type': 'application/json'
             }
         });
-
+        
         if(response && response?.data) {
             const { data } = response;
-            const { u, sd, ed, s, p } = req?.query;
 
-            if(data?.status === "approved") {
+            const metadata = data?.metadata;
+            const { u, sd, ed, s, p } = metadata?.notification_data;
 
-                const offset = -3 * 60; // Argentina tiene un offset de -3 horas respecto a UTC
-                const date = new Date(Number(sd));
-                const date2 = new Date(Number(ed));
+            const payment = await getPayment((data?.id).toString());
 
-                const startDateTime = new Date(date.getTime() + offset * 60000).toISOString();
-                const endDateTime = new Date(date2.getTime() + offset * 60000).toISOString();
+            if(data?.status === "approved" && !payment) {
 
-                await createEvent(d, u, 'Consulta medica', startDateTime, endDateTime, s, p)
+                await createEvent(d, u, 'Consulta medica', sd, ed, s, p);
                 await createPayment({
                     payment_id: data?.id,
-                    merchant_order_id: id,
+                    merchant_order_id: data?.order?.id,
                     status: data?.status,
                     payer: u,
                     doctor
@@ -149,6 +150,7 @@ server.post('/webhook/mercadopago', async (req, res) => {
             message: "No se pudo obtener los datos del pago"
         });
     }catch(err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: err.message
