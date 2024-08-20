@@ -17,9 +17,9 @@ const createPayment = async (data) => {
     }
 }
 
-const getPayment = async (id) => {
+const getPayment = async (data) => {
     try {
-        return await Payment.findOne({ payment_id: id } );
+        return await Payment.findOne(data);
     }catch(err) {
         console.log(err)
         throw new Error(err.message)

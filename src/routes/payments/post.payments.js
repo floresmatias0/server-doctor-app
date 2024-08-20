@@ -100,8 +100,8 @@ server.post('/webhook/mercadopago', async (req, res) => {
         const { d } = req?.query;
 
         const doctor = await findUserByEmail(d);
-        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
-        // const access_token = doctor?.mercadopago_access?.access_token;
+        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
+        const access_token = doctor?.mercadopago_access?.access_token;
   
         if (action !== "payment.created") {
             return res.status(200).json({
@@ -125,14 +125,15 @@ server.post('/webhook/mercadopago', async (req, res) => {
             const metadata = data?.metadata;
             const { u, sd, ed, s, p } = metadata?.notification_data;
 
-            const payment = await getPayment((data?.id).toString());
+            const payment = await getPayment({ payment_id: (data?.id).toString() });
 
             if(data?.status === "approved" && !payment) {
-
-                await createEvent(d, u, 'Consulta medica', sd, ed, s, p);
+                const order_id = data?.order?.id;
+                
+                await createEvent(d, u, 'Consulta medica', sd, ed, s, p, order_id);
                 await createPayment({
                     payment_id: data?.id,
-                    merchant_order_id: data?.order?.id,
+                    merchant_order_id: order_id,
                     status: data?.status,
                     payer: u,
                     doctor

@@ -1,5 +1,4 @@
 const Booking = require("../models/booking");
-const { findAllSymptoms } = require("./symptoms");
 const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
 const { v4: uuidv4 } = require('uuid');
@@ -29,7 +28,7 @@ const findBookingById = async (bookingId) => {
 
 const createBooking = async (bookingData) => {
     try {
-        const { id, status, summary, organizer, start, end, hangoutLink, userId, symptoms, patient } = bookingData;
+        const { id, status, summary, organizer, start, end, hangoutLink, userId, symptoms, patient, order_id } = bookingData;
 
         const doctor = await findUserByEmail(organizer.email);
 
@@ -38,6 +37,7 @@ const createBooking = async (bookingData) => {
         }
 
         return await Booking.create({
+            order_id,
             booking_id: id,
             user_id: userId,
             status,
@@ -72,7 +72,7 @@ const updateBooking = async (id, bookingData) => {
     }
 }
 
-const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patient) => {
+const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patient, order_id) => {
     try {
         const doctor = await findUserByEmail(doctorEmail);
         let user = await findUserByEmail(tutorEmail);
@@ -133,6 +133,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
 
         await createBooking({
             ...response?.data,
+            order_id,
             start: {
                 dateTime: startDateTime,
                 timeZone: 'America/Argentina/Buenos_Aires'

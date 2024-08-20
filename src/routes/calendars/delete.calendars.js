@@ -2,6 +2,9 @@ const server = require('express').Router();
 const { google } = require('googleapis');
 const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { updateBooking, findBookingById } = require('../../controllers/calendars');
+const { v4: uuidv4 } = require('uuid');
+const { getPayment } = require('../../controllers/payments');
+const { default: axios } = require('axios');
 
 server.delete('/:id', async (req, res) => {
     try {
@@ -17,6 +20,9 @@ server.delete('/:id', async (req, res) => {
                 error: `${!user ? 'User' : 'Booking'} User not found`
             });
         }
+
+        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
+        const access_token = user?.mercadopago_access?.access_token;
 
         const auth = new google.auth.OAuth2({
             clientId: process.env.GOOGLE_CLIENT_ID,
@@ -50,11 +56,24 @@ server.delete('/:id', async (req, res) => {
             }
 
             console.log('Evento eliminado con éxito:', id);
+
             await updateBooking(booking._id, {
                 status: 'deleted'
             })
 
-            console.log('event deleted response', response);
+            const payment = await getPayment({merchant_order_id: booking?.order_id});
+
+            const randomString = uuidv4();  
+            const responsePayment = await axios.request({
+                method: 'POST',
+                url: `https://api.mercadopago.com/v1/payments/${payment?.payment_id}/refunds?access_token=${access_token}`,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Idempotency-Key': randomString
+                }
+            });
+
+            console.log('event deleted response', response, responsePayment?.data);
             return res.status(200).json({
                 success: true,
                 data: 'Borrado con exito'

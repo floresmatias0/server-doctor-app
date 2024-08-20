@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const BookingSchema = new Schema({
+    order_id: { type: String, default: "" },
     booking_id: String,
     user_id: String, // Verifica que el tipo de dato sea correcto
     status: String,
