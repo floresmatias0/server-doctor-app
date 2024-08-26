@@ -4,7 +4,7 @@ const { findUserByEmail, updateUser } = require('../../controllers/users');
 const { updateBooking, findBookingById } = require('../../controllers/calendars');
 const { v4: uuidv4 } = require('uuid');
 const { getPayment } = require('../../controllers/payments');
-const { default: axios } = require('axios');
+const axios = require('axios');
 
 server.delete('/:id', async (req, res) => {
     try {
@@ -21,8 +21,8 @@ server.delete('/:id', async (req, res) => {
             });
         }
 
-        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
-        const access_token = user?.mercadopago_access?.access_token;
+        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
+        // const access_token = user?.mercadopago_access?.access_token;
 
         const auth = new google.auth.OAuth2({
             clientId: process.env.GOOGLE_CLIENT_ID,
@@ -76,7 +76,7 @@ server.delete('/:id', async (req, res) => {
             console.log('event deleted response', response, responsePayment?.data);
             return res.status(200).json({
                 success: true,
-                data: 'Borrado con exito'
+                data: 'Cancelación exito'
             });
         });
     } catch (err) {

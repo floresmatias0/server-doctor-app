@@ -6,6 +6,7 @@ const { createEvent } = require('../../controllers/calendars');
 const { createPayment, getPayment } = require('../../controllers/payments');
 
 const { MercadoPagoConfig, Preference } = require('mercadopago'); // --> PRUEBA NUEVO METODO
+const { reservedShift } = require('../../controllers/messages');
 
 server.post('/create', async (req, res) => {
     try {
@@ -13,8 +14,8 @@ server.post('/create', async (req, res) => {
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            // const access_token = doctor?.mercadopago_access?.access_token
-            const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
+            const access_token = doctor?.mercadopago_access?.access_token
+            // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
             const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
             const preference = new Preference(client); // --> PRUEBA NUEVO METODO
 
@@ -138,6 +139,20 @@ server.post('/webhook/mercadopago', async (req, res) => {
                     payer: u,
                     doctor
                 })
+
+                await reservedShift(
+                    d,
+                    true,
+                    'Tiene un nuevo turno agendado.',
+                    p,
+                    `${doctor?.firstName} ${doctor?.lastName}` || `${doctor?.name}`,
+                    `${doctor?.especialization}`,
+                    sd,
+                    doctor?.reservePrice,
+                    'bookingIdTest',
+                    d
+                )
+
             }
 
             return res.status(500).json({
