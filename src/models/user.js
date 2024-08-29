@@ -16,6 +16,8 @@ const UserSchema = new Schema({
   reserveTime: { type: Number, default: 15 },
   reserveTimeFrom: { type: Number, default: 10 },
   reserveTimeUntil: { type: Number, default: 19 },
+  reserveSaturday: { type: Boolean, default: false },
+  reserveSunday: { type: Boolean, default: false },
   especialization: { type: String, default: '' },
   dateOfBirth: { type: Date, default: null },
   phone: { type: String, default: '' },
