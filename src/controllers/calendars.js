@@ -100,7 +100,7 @@ const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDat
 
         const calendar = google.calendar('v3');
         const randomString = uuidv4();
-
+        
         const event = {
             summary: title,
             start: {

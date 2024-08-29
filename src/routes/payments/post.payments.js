@@ -130,7 +130,7 @@ server.post('/webhook/mercadopago', async (req, res) => {
 
             if(data?.status === "approved" && !payment) {
                 const order_id = data?.order?.id;
-                
+                console.log(sd, ed);
                 await createEvent(d, u, 'Consulta medica', sd, ed, s, p, order_id);
                 await createPayment({
                     payment_id: data?.id,

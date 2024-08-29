@@ -17,11 +17,11 @@ const BookingSchema = new Schema({
         time: Number
     },
     start: {
-        dateTime: Date,
+        dateTime: String,
         timeZone: String
     },
     end: {
-        dateTime: Date,
+        dateTime: String,
         timeZone: String
     },
     hangoutLink: String,
