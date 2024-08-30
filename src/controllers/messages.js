@@ -16,7 +16,7 @@ const reservedShift = async (
 ) => {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Zonapediatrica <onboarding@resend.dev>',
+            from: 'ZonaMed <onboarding@resend.dev>',
             to: sendTo,
             subject: 'Tiene un nuevo turno agendado',
             html: `
@@ -57,7 +57,7 @@ const reservedShift = async (
                                         <div style="border-radius: 8px;background: #FFF;box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);width: 285px; margin: 0 auto;border:1px solid #474747;">
                                             <p style="color: #000;font-family: Roboto;font-size: 14px;font-weight: 500;line-height: normal;padding: 5px 15px;border-bottom: 1px solid #474747; margin: 0;">Paciente: ${patientName}</p>
                                             <div style="padding: 20px 15px">
-                                                <p style="color: #000;font-family: Roboto;font-size: 14px;font-weight: 500;line-height: normal;margin:5px 0;">Dr. ${doctorName}</p>
+                                                <p style="color: #000;font-family: Roboto;font-size: 14px;font-weight: 500;line-height: normal;margin:5px 0;">Dr/Dra. ${doctorName}</p>
                                                 <p style="color: #000;font-family: Roboto;font-size: 14px;font-weight: 400;line-height: normal;margin: 5px 0;">${doctorEspecialization}</p>
                                                 <div style="display=flex;">
                                                     <img src="https://res.cloudinary.com/ds7tkrjqc/image/upload/v1724619119/yax5ir3jgv74gpiwleeo.png" width="10px" height="10px" style="float: left;padding: 4px 4px 0 0;"/>
@@ -97,9 +97,9 @@ const reservedShift = async (
                                 </main>
                                 <footer style="border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; background: linear-gradient(61deg, #104DBA -12.14%, #87A6DD 55.27%, #FFF 134.94%); box-shadow: 0px 6px 22px 0px rgba(217, 217, 217, 0.18); width: 100%; height: 80px;">
                                 <center style="padding: 1em 0;">
-                                    <a style="color: #FFF; font-family: Roboto; font-size: 14px; font-style: normal; font-weight: 400; line-height: normal; text-align: center; margin: 10px 0; text-decoration: none;" href="https://www.zonapediatrica.com.ar" target="__blank">www.zonapediatrica.com.ar</a>
+                                    <a style="color: #FFF; font-family: Roboto; font-size: 14px; font-style: normal; font-weight: 400; line-height: normal; text-align: center; margin: 10px 0; text-decoration: none;" href="https://www.zonamed.com.ar" target="__blank">www.zonamed.com.ar</a>
                                 </center>
-                                <p style="color: #FFF; font-family: Roboto; font-size: 14px; font-style: normal; font-weight: 400; line-height: normal; text-align: center; margin: 0;">© 2024 ZonaPediatrica – Todos los derechos reservados</p>
+                                <p style="color: #FFF; font-family: Roboto; font-size: 14px; font-style: normal; font-weight: 400; line-height: normal; text-align: center; margin: 0;">© 2024 ZonaMed – Todos los derechos reservados</p>
                                 </footer>
                             </td>
                             </tr>

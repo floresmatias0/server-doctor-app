@@ -68,7 +68,7 @@ server.post('/create', async (req, res) => {
                 marketplace: 'marketplace',
                 notification_url: `${process.env.NOTIFICATION_URL}?d=${user_email}`,
                 operation_type: 'regular_payment',
-                statement_descriptor: 'Zona Pediatrica',
+                statement_descriptor: 'Zona Med',
                 metadata: {
                     notificationData
                 }
