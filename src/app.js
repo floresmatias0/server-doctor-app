@@ -2,7 +2,7 @@ const firebase = require("firebase/app");
 
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo');
 const cors = require('cors');
 
 const firebaseConfig = require('../firebase.config.js');
@@ -48,7 +48,7 @@ server.set('trust proxy', 1)
 const isProduction = process.env.ENVIRONMENT === 'production';
 
 server.use(session({
-  store: new MongoStore({ url: process.env.DB_MONGOOSE }),
+  store: MongoStore.create({ mongoUrl: process.env.DB_MONGOOSE }),
   secret: process.env.GOOGLE_CLIENT_SECRET,
   resave: false,
   saveUninitialized: false,
