@@ -59,8 +59,8 @@ router.use('/symptoms', verifyToken, postSymptoms);
 router.use('/symptoms', verifyToken, deleteSymptoms);
 
 router.use('/certificates', verifyToken, deleteCertificates);
-router.use('/certificates', upload, postCertificates);
-router.use('/uploads', upload, postCertificates);
+router.use('/certificates', [verifyToken, upload], postCertificates);
+router.use('/uploads', [verifyToken, upload], postCertificates);
 
 router.use('/messages', verifyToken, postMessages);
 
