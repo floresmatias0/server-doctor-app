@@ -226,10 +226,25 @@ const getBookingsCountByDay = async () => {
         }
     ]);
 
+    // Get the current year
+    const currentYear = new Date().getFullYear();
+
+    // Calculate total revenue for the current year (from January to the current month)
+    const totalRevenueCurrentYear = bookingStats
+        .filter(stats => stats._id.year === currentYear)
+        .reduce((acc, stats) => acc + stats.totalPrice, 0);
+
+    // Get the revenue for the current month
+    const currentMonth = new Date().getMonth() + 1;
+    const currentMonthRevenue = bookingStats.find(stats => 
+        stats._id.month === currentMonth && stats._id.year === currentYear)?.totalPrice || 0;
+
     return {
         bookingDays,
         countsByDay,
-        bookingStats
+        bookingStats,
+        totalRevenueAllMonths: totalRevenueCurrentYear,
+        currentMonthRevenue
     };
 };
 
