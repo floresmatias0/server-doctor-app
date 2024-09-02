@@ -34,9 +34,9 @@ const BookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Certificate'
     }],
-    createdAt: Date,
-    updatedAt: Date,
     details: String
+}, {
+    timestamps: true
 });
 
 const Booking = mongoose.model('Booking', BookingSchema);
