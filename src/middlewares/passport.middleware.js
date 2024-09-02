@@ -1,8 +1,9 @@
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_CALLBACK } = process.env;
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_CALLBACK, JWT_SECRET } = process.env;
 
-const { createUser, findUserByEmail, updateUser, findUserById } = require('../controllers/users');
+const { createUser, findUserByEmail, updateUser } = require('../controllers/users');
 
 passport.use(new GoogleStrategy({
     clientID:     GOOGLE_CLIENT_ID,
@@ -10,8 +11,7 @@ passport.use(new GoogleStrategy({
     callbackURL: GOOGLE_CLIENT_CALLBACK,
     passReqToCallback: true
   },
-  function(req, accessToken, refreshToken, profile, done) {
-
+  async (req, accessToken, refreshToken, profile, done) => {
     const user = {
         name: profile.displayName,
         firstName: profile?.given_name,
@@ -24,43 +24,24 @@ passport.use(new GoogleStrategy({
         role: req.query.state
     };
 
-    findUserByEmail(user?.email)
-        .then(finded => {
-            updateUser(finded?._id, { accessToken, refreshToken })
-                .then(() => {
-                    console.log("User accessToken, refreshToken updated!");
-                })
-                .catch(err => {
-                    console.log("User accessToken update failed! ", err.message);
-                    return done(err, null)
-                })
+    try {
+        let findedUser = await findUserByEmail(user?.email);
+  
+        if (findedUser) {
+          await updateUser(findedUser?._id, { accessToken, refreshToken });
+          console.log("User accessToken, refreshToken updated!");
+        } else {
+          findedUser = await createUser(user);
+          console.log("User created!");
+        }
 
-            return done(null, finded)
-        })
-        .catch(() => {
-            createUser(user)
-                .then(created => {
-                    return done(null, created)
-                })
-                .catch(err => {
-                    return done(err, null)
-                })
-        })
+        const token = jwt.sign({ id: findedUser._id }, JWT_SECRET, { expiresIn: '5h' });
+  
+        return done(null, { user: findedUser, token });
+    } catch (err) {
+        console.log("Error: ", err.message);
+        return done(err, null);
     }
-));
-
-passport.serializeUser((user, done) => {
-    return done(null, user._id);
-});
-
-passport.deserializeUser((id, done) => {
-    findUserById(id)
-    .then(user => {
-        return done(null, user);
-    })
-    .catch(err => {
-        return done(err, null)
-    });
-});
+}));
 
 module.exports = passport;

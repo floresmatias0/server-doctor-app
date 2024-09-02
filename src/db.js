@@ -1,7 +1,5 @@
-require('dotenv').config();
-const chalk = require('chalk');
-
 const mongoose = require('mongoose');
+const chalk = require('chalk');
 
 async function connect() {
   try {

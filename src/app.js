@@ -1,8 +1,6 @@
 const firebase = require("firebase/app");
 
 const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const cors = require('cors');
 
 const firebaseConfig = require('../firebase.config.js');
@@ -43,22 +41,9 @@ const corsOptionsDelegate = function (req, callback) {
 
 server.use(cors(corsOptionsDelegate));
 
-server.set('trust proxy', 1)
-
-const isProduction = process.env.ENVIRONMENT === 'production';
-
-server.use(session({
-  store: MongoStore.create({ mongoUrl: process.env.DB_MONGOOSE }),
-  secret: process.env.GOOGLE_CLIENT_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: isProduction
-  }
-}));
+server.set('trust proxy', 1);
 
 server.use(passport.initialize());
-server.use(passport.session());
 
 server.use('/v1/', routes);
 

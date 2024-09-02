@@ -30,39 +30,39 @@ const deleteCertificates = require('./certificates/delete.certificates.js');
 const postMessages = require('./messages/post.messages.js');
 
 const upload = require('../middlewares/multer.middleware.js');
-// const { isAuthenticated } = require('../middlewares/auth.middleware.js');
+const {verifyToken} = require('../middlewares/auth.middleware.js');
 
 const router = Router();
 
 // Configuramos los routers
-router.use('/users', getUsers);
-router.use('/users', postUsers);
-router.use('/users', putUsers);
-router.use('/users', deleteUsers);
+router.use('/users', verifyToken, getUsers);
+router.use('/users', verifyToken,postUsers);
+router.use('/users', verifyToken, putUsers);
+router.use('/users', verifyToken, deleteUsers);
 
 router.use('/auth', getAuth);
 
-router.use('/calendars', getCalendars);
-router.use('/calendars', postCalendars);
-router.use('/calendars', deleteCalendars);
-router.use('/calendars', patchCalendars)
+router.use('/calendars', verifyToken, getCalendars);
+router.use('/calendars', verifyToken, postCalendars);
+router.use('/calendars', verifyToken, deleteCalendars);
+router.use('/calendars', verifyToken, patchCalendars)
 
-router.use('/payments', getPayments);
-router.use('/payments', postPayments);
+router.use('/payments', verifyToken, getPayments);
+router.use('/payments', verifyToken, postPayments);
 
-router.use('/patients', getPatients);
-router.use('/patients', postPatients);
-router.use('/patients', putPatients);
+router.use('/patients', verifyToken, getPatients);
+router.use('/patients', verifyToken, postPatients);
+router.use('/patients', verifyToken, putPatients);
 
-router.use('/symptoms', getSymptoms);
-router.use('/symptoms', postSymptoms);
-router.use('/symptoms', deleteSymptoms);
+router.use('/symptoms', verifyToken, getSymptoms);
+router.use('/symptoms', verifyToken, postSymptoms);
+router.use('/symptoms', verifyToken, deleteSymptoms);
 
-router.use('/certificates', deleteCertificates);
+router.use('/certificates', verifyToken, deleteCertificates);
 router.use('/certificates', upload, postCertificates);
 router.use('/uploads', upload, postCertificates);
 
-router.use('/messages', postMessages);
+router.use('/messages', verifyToken, postMessages);
 
 
 module.exports = router;

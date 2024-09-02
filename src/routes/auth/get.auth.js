@@ -23,12 +23,10 @@ function defineGoogleScope(req, res, next) {
         req.googleScope = scope;
         next();
     } catch (error) {
-        next(error); // Pasa el error al middleware de manejo de errores de Express
+        next(error);
     }
 }
 
-
-// Ruta para iniciar la autenticación con Google
 server.get('/google/', defineGoogleScope, (req, res, next) => {
     try {
         passport.authenticate('google', {
@@ -36,24 +34,25 @@ server.get('/google/', defineGoogleScope, (req, res, next) => {
             accessType: 'offline',
             prompt: 'consent',
             state: req.query.role,
-            passReqToCallback: true
+            session: false
         })(req, res, next);
     } catch (error) {
-        next(error); // Maneja el error
+        next(error);
     }
 });
 
 server.get('/google/callback', (req, res, next) => {
-    try {
-        passport.authenticate('google', {
-            successRedirect: '/v1/auth/google/success',
-            failureRedirect: '/v1/auth/google/failure'
-        })(req, res, next);
-    } catch (error) {
-        next(error); // Maneja el error
-    }
-});
+    passport.authenticate('google', { session: false }, (err, user) => {
+        if (err || !user) {
+            return res.redirect('/v1/auth/google/failure');
+        }
+        
+        const token = user.token;
 
+        res.redirect(`${process.env.FRONTEND_URL}/verificacion?token=${token}`);
+    })(req, res, next);
+});
+  
 server.get('/google/success', (req, res, next) => {
     try {
         const { user } = req;
@@ -76,18 +75,7 @@ server.get('/google/failure', (req, res, next) => {
 
 
 server.get('/google/logout', (req, res, next) => {
-    try {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log('Error al destruir la sesión:', err);
-                throw new Error("No se pudo destruir la sesión");
-            }
-            res.clearCookie('connect.sid', { path: '/' });
-            res.redirect(`${process.env.FRONTEND_URL}/iniciar-sesion`); // Redirigir después de cerrar sesión
-        });
-    } catch (error) {
-        next(error); // Maneja el error
-    }
+    res.redirect(`${process.env.FRONTEND_URL}/iniciar-sesion`);
 });
 
 module.exports = server;
