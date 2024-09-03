@@ -48,7 +48,7 @@ router.use('/calendars', verifyToken, deleteCalendars);
 router.use('/calendars', verifyToken, patchCalendars)
 
 router.use('/payments', verifyToken, getPayments);
-router.use('/payments', verifyToken, postPayments);
+router.use('/payments', postPayments);
 
 router.use('/patients', verifyToken, getPatients);
 router.use('/patients', verifyToken, postPatients);
