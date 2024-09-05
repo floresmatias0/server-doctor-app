@@ -1,4 +1,4 @@
-const { updateBooking } = require('../../controllers/calendars');
+const { updateBooking, findBookingById } = require('../../controllers/calendars');
 const { createCertificate } = require('../../controllers/certificates');
 const { getStorage, ref, getDownloadURL, uploadBytesResumable } = require("firebase/storage");
 
@@ -9,9 +9,12 @@ const storage = getStorage();
 server.post('/uploads', async (req, res) => {
     try {
         const { doctorId, patientId, bookingId } = req.body
+
         const files = req.files;
 
-        if (doctorId && patientId) {
+        if (doctorId && patientId && patientId) {
+            const booking = await findBookingById(bookingId);
+
             const fileUrls = await Promise.all(
                 files.map(async (file) => {
                     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
@@ -34,11 +37,11 @@ server.post('/uploads', async (req, res) => {
                   
                     return certificate._id;
                 })
-            );
-            
+            );  
             
             const certificatesIds = await Promise.all(fileUrls);
-            await updateBooking(bookingId, { certificate: certificatesIds })
+            
+            await updateBooking(bookingId, { certificate: [...booking.certificate, ...certificatesIds] })
 
             return res.status(200).json({
                 success: true,

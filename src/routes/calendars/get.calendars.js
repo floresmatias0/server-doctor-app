@@ -120,7 +120,6 @@ server.get('/doctor-patients/:doctorEmail', async (req, res) => {
 
         // Obtener todas las reservas del doctor especificado
         const events = await findAllBooking({ 'organizer.email': doctorEmail });
-
         // Crear un Set para almacenar los IDs únicos de los pacientes
         const patientIds = new Set();
 
@@ -133,7 +132,6 @@ server.get('/doctor-patients/:doctorEmail', async (req, res) => {
 
         // Convertir el Set a un array para obtener los datos de los pacientes
         const uniquePatientIds = Array.from(patientIds);
-
         // Obtener la información de los pacientes
         const patientPromises = uniquePatientIds.map(patientId => findPatientById(patientId));
         const patients = await Promise.all(patientPromises);

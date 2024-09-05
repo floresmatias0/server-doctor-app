@@ -10,7 +10,7 @@ const findAllPatients = async (filters) => {
 
 const findPatientById = async (patientId) => {
     try {
-        const patient = await Patient.findOne({_id: patientId});
+        const patient = await Patient.findOne({_id: patientId}).populate('userId');
         if (!patient) {
             throw new Error('Patient not found');
         }
