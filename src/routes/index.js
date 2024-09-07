@@ -35,10 +35,10 @@ const {verifyToken} = require('../middlewares/auth.middleware.js');
 const router = Router();
 
 // Configuramos los routers
-router.use('/users', verifyToken, getUsers);
-router.use('/users', verifyToken,postUsers);
-router.use('/users', verifyToken, putUsers);
-router.use('/users', verifyToken, deleteUsers);
+router.use('/users', getUsers);
+router.use('/users', postUsers);
+router.use('/users', putUsers);
+router.use('/users', deleteUsers);
 
 router.use('/auth', getAuth);
 

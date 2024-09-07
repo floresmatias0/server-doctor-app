@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const { getPayment } = require('../../controllers/payments');
 const axios = require('axios');
 
+//La ruta elimina el evento del calendario de goolge y tambien reembolsa el dinero del paciente 
 server.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -18,6 +19,21 @@ server.delete('/:id', async (req, res) => {
             return res.status(401).json({
                 success: false,
                 error: `${!user ? 'User' : 'Booking'} User not found`
+            });
+        }
+
+
+        // Verificar que la reserva no sea mayor a 24 horas antes del inicio
+        const bookingStartDate = new Date(booking.start.dateTime);
+        const now = new Date();
+        const timeDifference = bookingStartDate - now; // Diferencia en milisegundos
+        const hoursDifference = timeDifference / (1000 * 60 * 60); // Convertir a horas
+
+        if (hoursDifference <= 23) {
+            // Si la diferencia es menor o igual a 23 horas, no se permite la cancelación
+            return res.status(400).json({
+                success: false,
+                error: "Cannot delete the booking as it is within 24 hours of the scheduled time."
             });
         }
 

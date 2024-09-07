@@ -1,6 +1,5 @@
 const server = require('express').Router();
 const { createUser, updateUser } = require('../../controllers/users');
-const fetch = require('node-fetch');
 
 const { MercadoPagoConfig, OAuth } = require('mercadopago');
 const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_LOCAL_ACCESS_TOKEN });
