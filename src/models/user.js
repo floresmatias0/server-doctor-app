@@ -6,7 +6,7 @@ const UserSchema = new Schema({
   name: { type: String, default: '' },
   genre: { type: String, enum: ['MASCULINO', 'FEMENINO', 'OTRO'], default: 'OTRO' },
   email: { type: String, default: '' },
-  role: { type: String, enum: ['PACIENTE', 'DOCTOR'], default: 'PACIENTE' },
+  role: { type: String, enum: ['PACIENTE', 'DOCTOR', 'ADMIN'], default: 'PACIENTE' },
   picture: { type: String, default: '' },
   googleId: { type: String, default: '' },
   accessToken: { type: String, default: '' },
