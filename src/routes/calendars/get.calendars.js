@@ -181,8 +181,8 @@ server.get('/cancelation/:id', async (req, res) => {
             });
         }
 
-        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
-        // const access_token = user?.mercadopago_access?.access_token;
+        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
+        const access_token = user?.mercadopago_access?.access_token;
 
         const auth = new google.auth.OAuth2({
             clientId: process.env.GOOGLE_CLIENT_ID,
