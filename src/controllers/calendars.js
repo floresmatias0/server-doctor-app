@@ -6,7 +6,7 @@ const { ObjectId } = require('mongoose').Types;
 
 const findAllBooking = async (filters) => {
     try {
-        return await Booking.find(filters).populate('patient').populate('certificate');
+        return await Booking.find(filters).populate('patient').populate('certificate').populate('symptoms');
     }catch(err) {
         console.log(err)
         throw new Error(err.message);
