@@ -25,7 +25,10 @@ const BookingSchema = new Schema({
         timeZone: String
     },
     hangoutLink: String,
-    symptoms: [String],
+    symptoms: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Symptom'
+    }],
     patient: {
         type: Schema.Types.ObjectId,
         ref: 'Patient'

@@ -82,11 +82,52 @@ server.get('/all-events/:id?', async (req, res) => {
             events = await findAllBooking({ 'user_id': id });
         }
 
+        let extraData = [];
+
+        for(let i = 0; i < events.length; i++) {
+            let obj = {}
+            let patientId = events[i]?.patient;
+            let patient = await findPatientById(patientId);
+
+            obj.patientId = patient?._id;
+            obj.patientName = (patient?.firstName || patient?.lastName) ? `${patient?.firstName} ${patient?.lastName}` : patient?.name;
+            obj.patientGenre = patient?.genre;
+            obj.patientSocialWork = patient?.socialWork;
+            obj.patientSocialWorkId = patient?.socialWorkId;
+            obj.patientDocuments = patient?.documents;
+            obj.patientProceedings = patient?.proceedings;
+
+            obj.tutorId = patient?.userId?._id;
+            obj.tutorName = (patient?.userId?.firstName || patient?.userId?.lastName) ? `${patient?.userId?.firstName} ${patient?.userId?.lastName}` : patient?.userId?.name;
+            obj.tutorEmail = patient?.userId?.email;
+            obj.tutorPhone = patient?.userId?.phone;
+            
+            let beginning = new Date(events[i]?.start?.dateTime).toLocaleString("es", {day: "numeric", month: "numeric", year: "numeric"});
+            obj.beginning = beginning;
+            let startTime = new Date(events[i]?.start?.dateTime).toLocaleString("es", {hour: "numeric", minute: "numeric"});
+            obj.startTime = startTime;
+
+            obj.originalStartTime = events[i]?.start?.dateTime;
+
+            obj.status = events[i]?.status;
+            obj.link = events[i]?.hangoutLink;
+
+            obj.symptoms = events[i]?.symptoms?.map(u => u.name).join(', ');
+            
+            obj.doctorId = events[i]?.organizer?._id;
+            obj.doctorName = events[i]?.organizer?.name;
+            obj.doctorEmail = events[i]?.organizer?.email;
+
+            extraData.push(obj);
+        }
+
         const eventPromises = events.map(async (event) => {
             const patientId = event?.patient;
+
             if (patientId) {
                 const patient = await findPatientById(patientId);
-                event.patient = patient; // Asigna el paciente al evento
+
+                event.patient = patient;
             }
 
             return event;
@@ -94,9 +135,11 @@ server.get('/all-events/:id?', async (req, res) => {
 
         const eventsWithPatients = await Promise.all(eventPromises);
         eventsWithPatients.sort((a, b) => new Date(b.start.dateTime) - new Date(a.start.dateTime));
+        extraData.sort((a, b) => new Date(b.originalStartTime) - new Date(a.originalStartTime))
 
         return res.status(200).json({
             success: true,
+            extraData,
             data: eventsWithPatients
         });
     } catch (err) {
@@ -181,8 +224,8 @@ server.get('/cancelation/:id', async (req, res) => {
             });
         }
 
-        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
-        // const access_token = user?.mercadopago_access?.access_token;
+        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734'
+        const access_token = user?.mercadopago_access?.access_token;
 
         const auth = new google.auth.OAuth2({
             clientId: process.env.GOOGLE_CLIENT_ID,
