@@ -179,9 +179,35 @@ server.get('/doctor-patients/:doctorEmail', async (req, res) => {
         const patientPromises = uniquePatientIds.map(patientId => findPatientById(patientId));
         const patients = await Promise.all(patientPromises);
 
+
+        let formatPatient = [];
+
+        for(let i = 0; i < patients.length; i++) {
+            let obj = {}
+            let patient = patients[i];
+
+            obj.patientId = patient?._id;
+            obj.patientName = (patient?.firstName || patient?.lastName) ? `${patient?.firstName} ${patient?.lastName}` : patient?.name;
+            obj.patientIdentityId = patient?.identityId
+            obj.patientGenre = patient?.genre;
+            obj.patientSocialWork = patient?.socialWork;
+            obj.patientSocialWorkId = patient?.socialWorkId;
+            obj.patientDocuments = patient?.documents;
+            obj.patientProceedings = patient?.proceedings;
+            obj.patientDateOfBirth = new Date(patient?.dateOfBirth).toLocaleDateString();
+            obj.patientPhone = patient?.phone
+
+            obj.tutorId = patient?.userId?._id;
+            obj.tutorName = (patient?.userId?.firstName || patient?.userId?.lastName) ? `${patient?.userId?.firstName} ${patient?.userId?.lastName}` : patient?.userId?.name;
+            obj.tutorEmail = patient?.userId?.email;
+            obj.tutorPhone = patient?.userId?.phone;
+
+            formatPatient.push(obj);
+        }
+
         return res.status(200).json({
             success: true,
-            data: patients
+            data: formatPatient
         });
     } catch (err) {
         console.log(err);
