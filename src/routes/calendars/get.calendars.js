@@ -89,6 +89,9 @@ server.get('/all-events/:id?', async (req, res) => {
             let patientId = events[i]?.patient;
             let patient = await findPatientById(patientId);
 
+            obj.id = events[i]?._id;
+            obj.bookingId = events[i]?.booking_id;
+
             obj.patientId = patient?._id;
             obj.patientName = (patient?.firstName || patient?.lastName) ? `${patient?.firstName} ${patient?.lastName}` : patient?.name;
             obj.patientGenre = patient?.genre;
@@ -117,6 +120,12 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.doctorId = events[i]?.organizer?._id;
             obj.doctorName = events[i]?.organizer?.name;
             obj.doctorEmail = events[i]?.organizer?.email;
+            obj.doctorPicture = events[i]?.organizer?.picture;
+            obj.doctorPrice = events[i]?.organizer?.price;
+
+            obj.status = events[i]?.status;
+            obj.certificate = events[i]?.certificate;
+            obj.details = events[i]?.details;
 
             extraData.push(obj);
         }
