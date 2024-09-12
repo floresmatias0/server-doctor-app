@@ -37,7 +37,7 @@ const BookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Certificate'
     }],
-    details: String
+    details: { type: String, default: "" }
 }, {
     timestamps: true
 });
