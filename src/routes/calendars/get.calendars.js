@@ -82,7 +82,7 @@ server.get('/all-events/:id?', async (req, res) => {
             events = await findAllBooking({ 'user_id': id });
         }
 
-        let extraData = [];
+        let dataRefactor = [];
 
         for(let i = 0; i < events.length; i++) {
             let obj = {}
@@ -127,29 +127,14 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.certificate = events[i]?.certificate;
             obj.details = events[i]?.details;
 
-            extraData.push(obj);
+            dataRefactor.push(obj);
         }
 
-        const eventPromises = events.map(async (event) => {
-            const patientId = event?.patient;
-
-            if (patientId) {
-                const patient = await findPatientById(patientId);
-
-                event.patient = patient;
-            }
-
-            return event;
-        });
-
-        const eventsWithPatients = await Promise.all(eventPromises);
-        eventsWithPatients.sort((a, b) => new Date(b.start.dateTime) - new Date(a.start.dateTime));
-        extraData.sort((a, b) => new Date(b.originalStartTime) - new Date(a.originalStartTime))
+        dataRefactor.sort((a, b) => new Date(b.originalStartTime) - new Date(a.originalStartTime))
 
         return res.status(200).json({
             success: true,
-            extraData,
-            data: eventsWithPatients
+            data: dataRefactor
         });
     } catch (err) {
         console.log(err)
