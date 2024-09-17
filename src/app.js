@@ -1,3 +1,5 @@
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const firebase = require("firebase/app");
 
 const express = require('express');
@@ -38,6 +40,27 @@ const corsOptionsDelegate = function (req, callback) {
 
   callback(null, corsOptions)
 }
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Zona med API',
+      version: '1.0.0',
+      description: 'API documentation for Zona med API',
+    },
+    servers: [
+      {
+        url: process.env.BACKEND_URL
+      },
+    ],
+  },
+  apis: ['./src/routes/*.js'], // Ruta a tus archivos con anotaciones Swagger
+};
+
+const openapiSpecification = swaggerJsdoc(options);
+
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 server.use(cors(corsOptionsDelegate));
 
