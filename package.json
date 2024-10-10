@@ -38,6 +38,7 @@
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-google-oauth2": "^0.2.0",
+    "puppeteer": "^23.5.2",
     "resend": "^4.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
