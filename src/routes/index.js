@@ -24,6 +24,10 @@ const getSymptoms = require('./symptoms/get.symptom.js');
 const postSymptoms = require('./symptoms/post.symptom.js');
 const deleteSymptoms = require('./symptoms/delete.symptom.js');
 
+const getSpecializations = require('./specializations/get.specializations.js');
+const postSpecializations = require('./specializations/post.specialization.js');
+const deleteSpecializations = require('./specializations/delete.specialization.js');
+
 const postCertificates = require('./certificates/post.certificates.js');
 const deleteCertificates = require('./certificates/delete.certificates.js');
 
@@ -57,6 +61,10 @@ router.use('/patients', verifyToken, putPatients);
 router.use('/symptoms', verifyToken, getSymptoms);
 router.use('/symptoms', verifyToken, postSymptoms);
 router.use('/symptoms', verifyToken, deleteSymptoms);
+
+router.use('/specializations', verifyToken, getSpecializations);
+router.use('/specializations', verifyToken, postSpecializations);
+router.use('/specializations', verifyToken, deleteSpecializations);
 
 router.use('/certificates', verifyToken, deleteCertificates);
 router.use('/certificates', [verifyToken, upload], postCertificates);
