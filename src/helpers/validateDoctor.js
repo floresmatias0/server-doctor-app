@@ -1,4 +1,6 @@
 const puppeteer = require("puppeteer")
+const { updateUser} = require('../controllers/users');
+const { doctorEvaluationEmail } =  require('../controllers/messages')
 const sisaUrl = process.env.VALIDATE_DOCTOR_URL
 const selectorRegistro = process.env.VALIDATE_DOCTOR_RECORD_SELECTOR
 const selectorTipo = process.env.VALIDATE_DOCTOR_TYPE_SELECTOR
@@ -10,12 +12,38 @@ const codProfInfo = process.env.VALIDATE_DOCTOR_COD_PROF_INFO
 const tableInfo1 = process.env.VALIDATE_DOCTOR_TABLE_INFO_1
 const tableInfo2 = process.env.VALIDATE_DOCTOR_TABLE_INFO_2
 
-const validateDoctor = async (req) => {
-  console.log(req.body)
-  const documento = req.body.document
+const createMessageEvaluationEmail = (result) => {
+  if(result=== 'completed') {
+    return 'Su perfil médico ya está habilitado'
+  }else {
+    return 'Lamentamos informarle que su perfil no puede ser habilitado'
+  }
+}
+
+const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => {
+  try {
+    const response = await validateDoctor(dni)
+    let data = {validated:'disabled'}
+    if(response) data.validated = 'completed'
+    await updateUser(id, data);
+    const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
+    try {
+      const emailService = await doctorEvaluationEmail(email, `${lastName} ${firstName}`, emailMessage)
+    }catch(err) {
+      console.log(err)
+    }
+  }catch(err){
+    console.log(err)
+  }
+}
+
+const validateDoctor = async (document) => {
+  const documento = String(document)
+  console.log(documento)
+  console.log(resultTitle)
   try {
     const browser = await puppeteer.launch({
-      headless: true
+      headless: false
     });
     const page = await browser.newPage()
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3');
@@ -35,37 +63,49 @@ const validateDoctor = async (req) => {
     await page.click(searchButton)
 
     try {
-      await page.waitForSelector(firstResult, {
-        timeout: 3000
-      })
+      try {
+        await page.waitForSelector(firstResult, {
+          timeout: 3000
+        })
+      }catch(err) {
+        //aca si no existe deberia retomar que no es médico, definir respuesta
+        await browser.close();
+        console.log('no es medico')
+        if(err.name === 'TimeoutError') return false
+      }
       await page.click(firstResult)
       await page.waitForSelector(resultTitle, {
-        timeout: 3000
+        timeout: 5000
       })
-      const title = await page.evaluate(() => {
-        const nombre = document.querySelector(resultTitle)
-        return nombre.innerText
-      })
-      const codProf = await page.evaluate(() => {
+      // const title = await page.evaluate(() => {
+      //   const nombre = document.querySelector(resultTitle)
+      //   return nombre.innerText
+      // })
+      const title = await page.evaluate((resultTitle) => {
+        const nombre = document.querySelector(resultTitle);
+        return nombre ? nombre.innerText : null; // Verifica que el elemento existe
+      }, resultTitle); // Pasa la variable resultTitle al contexto del navegador
+
+      const codProf = await page.evaluate((codProfInfo) => {
         const codigo = document.querySelector(codProfInfo)
-        return codigo.innerText
-      })
-      const data1 = await page.evaluate(() => {
+        return codigo? codigo.innerText: null
+      },codProfInfo)
+      const data1 = await page.evaluate((tableInfo1) => {
         const table1 = document.querySelector(tableInfo1)
         const rows1 = table1.querySelectorAll('tbody tr');
         return Array.from(rows1, row => {
           const columns = row.querySelectorAll('td');
           return Array.from(columns).map(td => td.innerText.trim());
         });
-      })
-      const data2 = await page.evaluate(() => {
+      }, tableInfo1)
+      const data2 = await page.evaluate((tableInfo2) => {
         const table2 = document.querySelector(tableInfo2)
         const rows2 = table2.querySelectorAll('tbody tr');
         return Array.from(rows2, row => {
           const columns = row.querySelectorAll('td div');
           return Array.from(columns, column => column.innerText);
         });
-      })
+      },tableInfo2)
       console.log(codProf)
       console.log(data1)
       console.log(data2)
@@ -122,15 +162,14 @@ const validateDoctor = async (req) => {
     } catch (err) {
       await browser.close();
       console.log(err)
-      return 'Documento no encontrado'
+      return false
     }
-
   } catch (err) {
     console.log(err)
     return err
   }
-
 }
 
 
-module.exports = validateDoctor;
+
+module.exports = validateDoctorAndUpdateDB;
