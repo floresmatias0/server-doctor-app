@@ -25,7 +25,8 @@ const UserSchema = new Schema({
   identityId: { type: Number, default: 0 },
   socialWork: { type: String, default: '' },
   socialWorkId: { type: Number, default: 0 },
-  enrollment: { type: String, default: '' }
+  enrollment: { type: String, default: '' },
+  validated: { type: String, default: 'incompleted' }
 }, {
   timestamps: true
 });
