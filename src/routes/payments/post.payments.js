@@ -14,8 +14,8 @@ server.post('/create', async (req, res) => {
         const doctor = await findUserByEmail(user_email);
 
         if(doctor) {
-            const access_token = doctor?.mercadopago_access?.access_token
-            // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
+            // const access_token = doctor?.mercadopago_access?.access_token
+            const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
             const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
             const preference = new Preference(client); // --> PRUEBA NUEVO METODO
 
@@ -101,8 +101,8 @@ server.post('/webhook/mercadopago', async (req, res) => {
         const { d } = req?.query;
 
         const doctor = await findUserByEmail(d);
-        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
-        const access_token = doctor?.mercadopago_access?.access_token;
+        const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
+        // const access_token = doctor?.mercadopago_access?.access_token;
   
         if (action !== "payment.created") {
             return res.status(200).json({
