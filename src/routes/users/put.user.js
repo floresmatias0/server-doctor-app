@@ -1,12 +1,20 @@
 const server = require('express').Router();
 const { updateUser, findUserById } = require('../../controllers/users');
 const validateDoctorAndUpdateDB = require('../../helpers/validateDoctor')
+const enablebValidateDoctor = process.env.ENABLED_VALIDATE_DOCTOR
 
 const validateDoctorDataComplete = async(user, id) => {
-    if(user.socialWorkId != 0 && user.identityId != 0 && user.socialWork != "" && user.enrollment != "") {
-        const updateUserData = await updateUser(id, {validated:'pending'});
-        validateDoctorAndUpdateDB(id, updateUserData.identityId, user.firstName, user.lastName, user.email)
-        return updateUserData
+    if(enablebValidateDoctor) {
+        if(user.socialWorkId != 0 && user.identityId != 0 && user.socialWork != "" && user.enrollment != "") {
+            const updateUserData = await updateUser(id, {validated:'pending'});
+            validateDoctorAndUpdateDB(id, updateUserData.identityId, user.firstName, user.lastName, user.email)
+            return updateUserData
+        }
+    }else {
+        if(user.socialWorkId != 0 && user.identityId != 0 && user.socialWork != "" && user.enrollment != "") {
+            const updateUserData = await updateUser(id, {validated:'completed'});
+            return updateUserData
+        }
     }
 }
 

@@ -28,7 +28,9 @@ const whitelist = [
   'https://www.zonamed.com.ar',
   'https://zonamed.com.ar',
   'https://zonamed-dev.vercel.app',
-  'https://51mfqcs0-5173.brs.devtunnels.ms'
+  'https://51mfqcs0-5173.brs.devtunnels.ms',
+  'https://zonapediatrica.online',
+  'https://www.zonapediatrica.online',
 ];
 
 const corsOptionsDelegate = function (req, callback) {
