@@ -62,7 +62,8 @@ router.use('/symptoms', verifyToken, getSymptoms);
 router.use('/symptoms', verifyToken, postSymptoms);
 router.use('/symptoms', verifyToken, deleteSymptoms);
 
-router.use('/specializations', verifyToken, getSpecializations);
+// router.use('/specializations', verifyToken, getSpecializations);
+router.use('/specializations',  getSpecializations);
 router.use('/specializations', verifyToken, postSpecializations);
 router.use('/specializations', verifyToken, deleteSpecializations);
 
