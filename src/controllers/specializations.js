@@ -5,6 +5,7 @@ const findAllSpecializations = async (filters) => {
         return await Specialization.find(filters);
     } catch(err) {
         throw new Error(err.message);
+        console.log(err)
     }
 };
 
