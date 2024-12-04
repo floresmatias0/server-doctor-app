@@ -23,15 +23,18 @@ const createMessageEvaluationEmail = (result) => {
 const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => {
   try {
     const response = await validateDoctor(dni)
+    console.log(response)
     let data = {validated:'disabled'}
     if(response.matricula) data.validated = 'completed'
     await updateUser(id, data);
+    /*
     const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
     try {
       const emailService = await doctorEvaluationEmail(email, `${lastName} ${firstName}`, emailMessage)
     }catch(err) {
       console.log(err)
     }
+    */
   }catch(err){
     console.log(err)
   }
