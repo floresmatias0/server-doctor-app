@@ -2,7 +2,8 @@ const Specialization = require("../models/specializations");
 
 const findAllSpecializations = async (filters) => {
     try {
-        return await Specialization.find(filters);
+        const response = await Specialization.find(filters);
+        return response
     } catch(err) {
         throw new Error(err.message);
     }
