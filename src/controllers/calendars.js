@@ -3,15 +3,19 @@ const { findUserByEmail, updateUser } = require("./users");
 const { google } = require('googleapis');
 const { v4: uuidv4 } = require('uuid');
 const { ObjectId } = require('mongoose').Types;
+const mongoose = require('mongoose');
 
-const findAllBooking = async (filters) => {
-    try {
-        return await Booking.find(filters).populate('patient').populate('certificate').populate('symptoms');
-    }catch(err) {
-        console.log(err)
-        throw new Error(err.message);
-    }
-};
+const findAllBooking = async (query) => {
+    return await Booking.find(query)
+      .populate('patient')
+      .populate('certificate')
+      .populate({
+        path: 'rating',
+        model: 'Rating',
+        select: 'rating comment', // Seleccionar solo los campos necesarios
+      });
+  };
+  
 
 const findBookingById = async (bookingId) => {
     try {
@@ -32,7 +36,7 @@ const createBooking = async (bookingData) => {
 
         const doctor = await findUserByEmail(organizer.email);
 
-        if(!doctor) {
+        if (!doctor) {
             throw new Error(err.message);
         }
 
@@ -55,13 +59,17 @@ const createBooking = async (bookingData) => {
             end,
             hangoutLink,
             symptoms,
-            patient
+            patient,
+            customBookingIdField: id,
+            rating: null // Asegúrate de que el campo rating esté presente aunque inicialmente vacío
         });
-    }catch(err) {
+    } catch (err) {
         throw new Error(err.message);
     }
-}
+};
 
+
+  
 const updateBooking = async (id, bookingData) => {
     try {
         const booking = await Booking.findOneAndUpdate(new ObjectId(id), bookingData)
@@ -73,95 +81,111 @@ const updateBooking = async (id, bookingData) => {
 }
 
 const createEvent = async (doctorEmail, tutorEmail, title, startDateTime, endDateTime, symptoms, patient, order_id) => {
-    try {
-        const doctor = await findUserByEmail(doctorEmail);
-        let user = await findUserByEmail(tutorEmail);
+  try {
+    const doctor = await findUserByEmail(doctorEmail);
+    let user = await findUserByEmail(tutorEmail);
 
-        if(!user) {
-            throw new Error("User not found")
-        }
-
-        if (!doctor) {
-            throw new Error("User not found")
-        }
-
-        const auth = new google.auth.OAuth2({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET
-        });
-
-        auth.setCredentials({ refresh_token: doctor.refreshToken });
-
-        const refreshedTokens = await auth.refreshAccessToken();
-
-        if (refreshedTokens.credentials.access_token) {
-            await updateUser(doctor._id, { accessToken: refreshedTokens.credentials.access_token });
-        }
-
-        const calendar = google.calendar('v3');
-        const randomString = uuidv4();
-        
-        const event = {
-            summary: title,
-            start: {
-                dateTime: startDateTime,
-                timeZone: 'America/Argentina/Buenos_Aires'
-            },
-            end: {
-                dateTime: endDateTime,
-                timeZone: 'America/Argentina/Buenos_Aires'
-            },
-            attendees: [
-                {'email': doctorEmail },
-                {'email': tutorEmail }
-            ],
-            conferenceData: {
-                createRequest: { requestId: randomString }
-            },
-            'reminders': {
-                'useDefault': true
-            }
-        };
-
-        const response = await calendar.events.insert({
-            auth,
-            calendarId: 'primary',
-            resource: event,
-            sendNotifications: true,
-            conferenceDataVersion: 1
-        });
-
-        await createBooking({
-            ...response?.data,
-            order_id,
-            start: {
-                dateTime: startDateTime,
-                timeZone: 'America/Argentina/Buenos_Aires'
-            },
-            end: {
-                dateTime: endDateTime,
-                timeZone: 'America/Argentina/Buenos_Aires'
-            },
-            userId: user._id,
-            symptoms,
-            patient
-        })
-
-        return {
-            success: true,
-            data: response?.data
-        };
-    } catch (err) {
-        let msg = JSON.stringify({
-            section: "createEvent",
-            errors: err?.response?.data?.error?.errors,
-            code: err?.response?.data?.error?.code,
-            message: err?.response?.data?.error?.message
-        })
-
-        throw new Error(msg)
+    if (!user) {
+      throw new Error("User not found");
     }
-}
+
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    const auth = new google.auth.OAuth2({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    });
+
+    auth.setCredentials({ refresh_token: doctor.refreshToken });
+
+    const refreshedTokens = await auth.refreshAccessToken();
+
+    if (refreshedTokens.credentials.access_token) {
+      await updateUser(doctor._id, { accessToken: refreshedTokens.credentials.access_token });
+    }
+
+    const calendar = google.calendar('v3');
+    const randomString = uuidv4();
+    
+    const event = {
+      summary: title,
+      start: {
+        dateTime: startDateTime,
+        timeZone: 'America/Argentina/Buenos_Aires',
+      },
+      end: {
+        dateTime: endDateTime,
+        timeZone: 'America/Argentina/Buenos_Aires',
+      },
+      attendees: [
+        { email: doctorEmail },
+        { email: tutorEmail },
+      ],
+      conferenceData: {
+        createRequest: { requestId: randomString },
+      },
+      reminders: {
+        useDefault: true,
+      },
+    };
+
+    const response = await calendar.events.insert({
+      auth,
+      calendarId: 'primary',
+      resource: event,
+      sendNotifications: true,
+      conferenceDataVersion: 1,
+    });
+
+    await Booking.create({
+      _id: new mongoose.Types.ObjectId(), // Asignar un nuevo ObjectId
+      customBookingIdField: response.data.id, // Asignar el ID del evento como customBookingIdField
+      order_id,
+      booking_id: response.data.id,
+      user_id: user._id,
+      status: 'confirmed',
+      summary: title,
+      organizer: {
+        _id: doctor._id,
+        name: doctor.name,
+        email: doctor.email,
+        role: doctor.role,
+        picture: doctor.picture,
+        price: doctor.reservePrice,
+        time: doctor.reserveTime,
+      },
+      start: {
+        dateTime: startDateTime,
+        timeZone: 'America/Argentina/Buenos_Aires',
+      },
+      end: {
+        dateTime: endDateTime,
+        timeZone: 'America/Argentina/Buenos_Aires',
+      },
+      originalStartTime: startDateTime, // Asegurarse de asignar originalStartTime
+      hangoutLink: response.data.hangoutLink,
+      symptoms,
+      patient,
+    });
+
+    return {
+      success: true,
+      data: response?.data,
+    };
+  } catch (err) {
+    console.error("Error en createEvent:", err.message);
+    let msg = JSON.stringify({
+      section: "createEvent",
+      errors: err?.response?.data?.error?.errors,
+      code: err?.response?.data?.error?.code,
+      message: err?.response?.data?.error?.message,
+    });
+
+    throw new Error(msg);
+  }
+};
 
 const getDaysOfCurrentMonth = () => {
     const currentDate = new Date();

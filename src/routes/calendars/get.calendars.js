@@ -84,8 +84,8 @@ server.get('/all-events/:id?', async (req, res) => {
 
         let dataRefactor = [];
 
-        for(let i = 0; i < events.length; i++) {
-            let obj = {}
+        for (let i = 0; i < events.length; i++) {
+            let obj = {};
             let patientId = events[i]?.patient;
             let patient = await findPatientById(patientId);
 
@@ -126,18 +126,28 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.status = events[i]?.status;
             obj.certificate = events[i]?.certificate;
             obj.details = events[i]?.details;
+            obj.isRated = events[i]?.isRated;
+
+            // Agregar los datos de calificación
+            if (events[i]?.rating) {
+                obj.rating = events[i].rating.rating;
+                obj.comment = events[i].rating.comment;
+            } else {
+                obj.rating = 5;
+                obj.comment = '';
+            }
 
             dataRefactor.push(obj);
         }
 
-        dataRefactor.sort((a, b) => new Date(b.originalStartTime) - new Date(a.originalStartTime))
+        dataRefactor.sort((a, b) => new Date(b.originalStartTime) - new Date(a.originalStartTime));
 
         return res.status(200).json({
             success: true,
             data: dataRefactor
         });
     } catch (err) {
-        console.log(err)
+        console.log(err);
         return res.status(500).json({
             success: false,
             error: err.message
