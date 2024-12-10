@@ -37,7 +37,14 @@ const BookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Certificate'
     }],
-    details: { type: String, default: "" }
+    details: { type: String, default: "" },
+    originalStartTime: { type: Date, required: true },
+    customBookingIdField: { type: String, unique: true, required: true },
+    isRated: { type: Boolean, default: false },
+    rating: {
+        type: Schema.Types.ObjectId,
+        ref: 'Rating'
+    },
 }, {
     timestamps: true
 });
