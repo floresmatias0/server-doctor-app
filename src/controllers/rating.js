@@ -6,7 +6,7 @@ const createRating = async (req, res) => {
     try {
       const { doctorId, patientId, bookingId, rating, comment } = req.body;
   
-      console.log('Datos recibidos:', { doctorId, patientId, bookingId, rating, comment });
+      // console.log('Datos recibidos:', { doctorId, patientId, bookingId, rating, comment });
   
       // Verificar la existencia de una calificación existente
       let existingRating = await Rating.findOne({ doctorId, patientId, bookingId });
@@ -17,7 +17,7 @@ const createRating = async (req, res) => {
         existingRating.comment = comment;
         await existingRating.save();
   
-        console.log('Calificación actualizada:', existingRating);
+        // console.log('Calificación actualizada:', existingRating);
         
         // Actualizar la reserva para marcarla como calificada
         const bookingToUpdate = await Booking.findOne({ customBookingIdField: bookingId });
@@ -30,7 +30,7 @@ const createRating = async (req, res) => {
         bookingToUpdate.rating = existingRating._id; // Cambiar de ratingId a rating
         await bookingToUpdate.save();
   
-        console.log('Resultado de la actualización de la reserva:', bookingToUpdate);
+        // console.log('Resultado de la actualización de la reserva:', bookingToUpdate);
   
         res.status(201).json({ success: true, rating: existingRating });
       } else {
@@ -44,7 +44,7 @@ const createRating = async (req, res) => {
         });
   
         await newRating.save();
-        console.log('Calificación guardada:', newRating);
+        // console.log('Calificación guardada:', newRating);
   
         // Actualizar la reserva para marcarla como calificada
         const bookingToUpdate = await Booking.findOne({ customBookingIdField: bookingId });
@@ -57,7 +57,7 @@ const createRating = async (req, res) => {
         bookingToUpdate.rating = newRating._id; // Cambiar de ratingId a rating
         await bookingToUpdate.save();
   
-        console.log('Resultado de la actualización de la reserva:', bookingToUpdate);
+        // console.log('Resultado de la actualización de la reserva:', bookingToUpdate);
   
         res.status(201).json({ success: true, rating: newRating });
       }

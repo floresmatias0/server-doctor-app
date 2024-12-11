@@ -334,29 +334,29 @@ const getAvailableSlots = (user, occupiedSlots) => {
     const slotDuration = user.reserveTime; // Duración del turno, por ejemplo 30 minutos
 
     const addSlot = (date, startHour, endHour) => {
-        console.log(`Procesando franja horaria: date=${date}, startHour=${startHour}, endHour=${endHour}`);
+        // console.log(`Procesando franja horaria: date=${date}, startHour=${startHour}, endHour=${endHour}`);
 
         let start = new Date(date);
         start.setHours(parseInt(startHour), 0, 0, 0);
         let end = new Date(date);
         end.setHours(parseInt(endHour), 0, 0, 0);
 
-        console.log(`Inicializando start=${start}, end=${end}`);
+        // console.log(`Inicializando start=${start}, end=${end}`);
         while (start < end) {
             const slotEnd = new Date(start);
             slotEnd.setMinutes(slotEnd.getMinutes() + slotDuration); // Usar reserveTime para la duración del turno
             const overlap = occupiedSlots.some(slot => {
-                console.log(`Verificando solapamiento para: start=${start}, end=${slotEnd}`);
-                console.log(`Occupied slot: start=${slot.start}, end=${slot.end}`);
+                // console.log(`Verificando solapamiento para: start=${start}, end=${slotEnd}`);
+                // console.log(`Occupied slot: start=${slot.start}, end=${slot.end}`);
                 const overlapCheck = start < slot.end && slot.start < slotEnd;
                 if (overlapCheck) console.log(`Solapamiento detectado: start=${start}, end=${slotEnd}, ocupado=${slot}`);
                 return overlapCheck;
             });
             if (!overlap) {
                 availableSlots.push({ start: start, end: slotEnd });
-                console.log(`Franja horaria disponible añadida: start=${start}, end=${slotEnd}`);
+                // console.log(`Franja horaria disponible añadida: start=${start}, end=${slotEnd}`);
             } else {
-                console.log(`Solapamiento: start=${start}, end=${slotEnd}`);
+                // console.log(`Solapamiento: start=${start}, end=${slotEnd}`);
             }
             start = slotEnd;
         }
@@ -368,11 +368,11 @@ const getAvailableSlots = (user, occupiedSlots) => {
         const dayOfWeek = date.getDay();
 
         if (dayOfWeek === 0 && user.reserveSunday) {
-            console.log(`Omitiendo domingo: ${date}`);
+            // console.log(`Omitiendo domingo: ${date}`);
             continue;
         }
         if (dayOfWeek === 6 && user.reserveSaturday) {
-            console.log(`Omitiendo sábado: ${date}`);
+            // console.log(`Omitiendo sábado: ${date}`);
             continue;
         }
 
@@ -385,7 +385,7 @@ const getAvailableSlots = (user, occupiedSlots) => {
         }
     }
 
-    console.log(`Total available slots: ${availableSlots.length}`);
+    // console.log(`Total available slots: ${availableSlots.length}`);
     return availableSlots.filter(slot => slot.start >= currentTime); // Filtra los slots pasados
 };
 
@@ -394,11 +394,11 @@ server.get('/closest-appointments', async (req, res) => {
     try {
         const { specialization } = req.query;
         
-        console.log(`Buscando médicos con la especialización: ${specialization}`);
+        // console.log(`Buscando médicos con la especialización: ${specialization}`);
         const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"], "especialization":["${specialization}"]}`);
         const doctors = response.data.data;
 
-        console.log(`Médicos encontrados: ${doctors.length}`);
+        // console.log(`Médicos encontrados: ${doctors.length}`);
 
         if (!doctors.length) {
             return res.status(404).json({
@@ -411,7 +411,7 @@ server.get('/closest-appointments', async (req, res) => {
         for (const doctor of doctors) {
             const user = await findUserByEmail(doctor.email);
 
-            console.log(`Autenticando para el médico: ${doctor.email}`);
+            // console.log(`Autenticando para el médico: ${doctor.email}`);
             const auth = new google.auth.OAuth2({
                 clientId: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET
@@ -429,7 +429,7 @@ server.get('/closest-appointments', async (req, res) => {
             const calendar = google.calendar('v3');
             const timeMin = new Date().toISOString();
 
-            console.log(`Obteniendo eventos del calendario para el médico: ${doctor.email}`);
+            // console.log(`Obteniendo eventos del calendario para el médico: ${doctor.email}`);
             const calendarResponse = await calendar.events.list({
                 auth,
                 calendarId: 'primary',
@@ -444,11 +444,11 @@ server.get('/closest-appointments', async (req, res) => {
                 end: new Date(event.end.dateTime)       // Usamos directamente la fecha original para la comparación
             }));
 
-            console.log('Eventos ocupados:', occupiedSlots);
+            // console.log('Eventos ocupados:', occupiedSlots);
 
             const availableSlots = getAvailableSlots(user, occupiedSlots);
 
-            console.log('Available Slots:', availableSlots);
+            // console.log('Available Slots:', availableSlots);
 
             if (availableSlots.length > 0) {
                 // Ajustamos la hora después de haber hecho la comparación
