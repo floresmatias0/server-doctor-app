@@ -38,6 +38,9 @@ const {verifyToken} = require('../middlewares/auth.middleware.js');
 
 const router = Router();
 
+
+const postRatings = require('./rating/post.rating.js');
+
 // Configuramos los routers
 router.use('/users', getUsers);
 router.use('/users', postUsers);
@@ -72,6 +75,8 @@ router.use('/certificates', [verifyToken, upload], postCertificates);
 router.use('/uploads', [verifyToken, upload], postCertificates);
 
 router.use('/messages', verifyToken, postMessages);
+
+router.use('/rating', verifyToken, postRatings);
 
 
 module.exports = router;

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const BookingSchema = new Schema({
     order_id: { type: String, default: "" },
     booking_id: String,
-    user_id: String, // Verifica que el tipo de dato sea correcto
+    user_id: String,
     status: String,
     summary: String,
     organizer: {
@@ -37,7 +37,14 @@ const BookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Certificate'
     }],
-    details: { type: String, default: "" }
+    details: { type: String, default: "" },
+    originalStartTime: { type: Date, required: true },
+    customBookingIdField: { type: String, unique: true, required: true },
+    isRated: { type: Boolean, default: false },
+    rating: {
+        type: Schema.Types.ObjectId,
+        ref: 'Rating'
+    },
 }, {
     timestamps: true
 });

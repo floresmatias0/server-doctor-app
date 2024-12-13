@@ -101,7 +101,7 @@ server.post('/webhook/mercadopago', async (req, res) => {
         const { d } = req?.query;
 
         const doctor = await findUserByEmail(d);
-        // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
+         //const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
         const access_token = doctor?.mercadopago_access?.access_token;
   
         if (action !== "payment.created") {
