@@ -389,100 +389,95 @@ const getAvailableSlots = (user, occupiedSlots) => {
     return availableSlots.filter(slot => slot.start >= currentTime); // Filtra los slots pasados
 };
 
-
 server.get('/closest-appointments', async (req, res) => {
     try {
-        const { specialization } = req.query;
-        
-        // console.log(`Buscando médicos con la especialización: ${specialization}`);
-        const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"], "especialization":["${specialization}"]}`);
-        const doctors = response.data.data;
-
-        // console.log(`Médicos encontrados: ${doctors.length}`);
-
-        if (!doctors.length) {
-            return res.status(404).json({
-                success: false,
-                error: "No doctors found for this specialization"
-            });
-        }
-
-        let appointments = [];
-        for (const doctor of doctors) {
-            const user = await findUserByEmail(doctor.email);
-
-            // console.log(`Autenticando para el médico: ${doctor.email}`);
-            const auth = new google.auth.OAuth2({
-                clientId: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET
-            });
-
-            auth.setCredentials({ refresh_token: user.refreshToken });
-
-            const refreshedTokens = await auth.refreshAccessToken();
-
-            if (refreshedTokens.credentials.access_token) {
-                await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
-                auth.setCredentials({ access_token: refreshedTokens.credentials.access_token });
-            }
-
-            const calendar = google.calendar('v3');
-            const timeMin = new Date().toISOString();
-
-            // console.log(`Obteniendo eventos del calendario para el médico: ${doctor.email}`);
-            const calendarResponse = await calendar.events.list({
-                auth,
-                calendarId: 'primary',
-                timeMin,
-                singleEvents: true,
-                orderBy: 'startTime'
-            });
-
-            // Ajustar las fechas del evento restando 3 horas
-            const occupiedSlots = calendarResponse.data.items.map(event => ({
-                start: new Date(event.start.dateTime),  // Usamos directamente la fecha original para la comparación
-                end: new Date(event.end.dateTime)       // Usamos directamente la fecha original para la comparación
-            }));
-
-            // console.log('Eventos ocupados:', occupiedSlots);
-
-            const availableSlots = getAvailableSlots(user, occupiedSlots);
-
-            // console.log('Available Slots:', availableSlots);
-
-            if (availableSlots.length > 0) {
-                // Ajustamos la hora después de haber hecho la comparación
-                const adjustedAvailableSlots = availableSlots.map(slot => ({
-                    start: adjustTime(slot.start, -3),
-                    end: adjustTime(slot.end, -3)
-                }));
-
-                // Enviar fechas como ISO strings al frontend
-                appointments.push({
-                    doctor: doctor,
-                    nextAvailable: {
-                        start: adjustedAvailableSlots[0].start.toISOString(),
-                        end: adjustedAvailableSlots[0].end.toISOString()
-                    } // Primer horario disponible
-                });
-            } else {
-                console.log(`No hay horarios disponibles para el médico: ${doctor.email}`);
-            }
-        }
-
-        return res.status(200).json({
-            success: true,
-            data: appointments
+      const { specialization } = req.query;
+      
+      // console.log(`Buscando médicos con la especialización: ${specialization}`);
+      const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"]}`);
+      const doctors = response.data.data;
+  
+      // Filtrar los médicos por especialización antes de proceder
+      const filteredDoctors = doctors.filter(doctor => doctor.especialization === specialization);
+      // console.log(`Médicos encontrados con especialización ${specialization}: ${filteredDoctors.length}`);
+  
+      if (!filteredDoctors.length) {
+        return res.status(404).json({
+          success: false,
+          error: "No doctors found for this specialization"
         });
-
+      }
+  
+      let appointments = [];
+      for (const doctor of filteredDoctors) {
+        const user = await findUserByEmail(doctor.email);
+  
+        const auth = new google.auth.OAuth2({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET
+        });
+  
+        auth.setCredentials({ refresh_token: user.refreshToken });
+  
+        const refreshedTokens = await auth.refreshAccessToken();
+  
+        if (refreshedTokens.credentials.access_token) {
+          await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
+          auth.setCredentials({ access_token: refreshedTokens.credentials.access_token });
+        }
+  
+        const calendar = google.calendar('v3');
+        const timeMin = new Date().toISOString();
+  
+//       console.log(`Obteniendo eventos del calendario para el médico: ${doctor.email}`);
+        const calendarResponse = await calendar.events.list({
+          auth,
+          calendarId: 'primary',
+          timeMin,
+          singleEvents: true,
+          orderBy: 'startTime'
+        });
+  
+        const occupiedSlots = calendarResponse.data.items.map(event => ({
+          start: new Date(event.start.dateTime),
+          end: new Date(event.end.dateTime)
+        }));
+  
+        const availableSlots = getAvailableSlots(user, occupiedSlots);
+  
+        // console.log('Available Slots:', availableSlots);
+  
+        if (availableSlots.length > 0) {
+          const adjustedAvailableSlots = availableSlots.map(slot => ({
+            start: adjustTime(slot.start, -3),
+            end: adjustTime(slot.end, -3)
+          }));
+  
+          appointments.push({
+            doctor: doctor,
+            nextAvailable: {
+              start: adjustedAvailableSlots[0].start.toISOString(),
+              end: adjustedAvailableSlots[0].end.toISOString()
+            }
+          });
+        } else {
+          console.log(`No hay horarios disponibles para el médico: ${doctor.email}`);
+        }
+      }
+  
+      return res.status(200).json({
+        success: true,
+        data: appointments
+      });
+  
     } catch (err) {
-        console.error("Error fetching closest appointments", err.message);
-        return res.status(500).json({
-            success: false,
-            error: err.message
-        });
+      console.error("Error fetching closest appointments", err.message);
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
     }
-});
+  });
 
 //FIN DE TURNO MAS PROXIMO
 
