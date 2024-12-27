@@ -27,7 +27,7 @@ const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => 
     console.log(`Respuesta validacion:${response}`)
     let data = {validated:'disabled'}
     if(response) data.validated = 'completed'
-    //await updateUser(id, data);
+    await updateUser(id, data);
 
     //const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
     //try {
@@ -48,7 +48,7 @@ const validateDoctor = async (document) => {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      protocolTimeout: 60000
+      protocolTimeout: 600000
     });
     console.log('browser iniciado')
     const page = await browser.newPage()
