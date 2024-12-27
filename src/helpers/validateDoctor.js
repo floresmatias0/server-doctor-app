@@ -24,9 +24,9 @@ const createMessageEvaluationEmail = (result) => {
 const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => {
   try {
     const response = await validateDoctor(dni)
-    console.log(response)
+    console.log(`Respuesta validacion:${response}`)
     let data = {validated:'disabled'}
-    if(response.matricula) data.validated = 'completed'
+    if(response) data.validated = 'completed'
     //await updateUser(id, data);
 
     //const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
@@ -63,9 +63,9 @@ const validateDoctor = async (document) => {
     const cookies = await page.cookies();
     await page.setCookie(...cookies);
     await page.waitForSelector(selectorRegistro);
-    console.log('encontro el boton')
+    // console.log('encontro el boton')
     await page.click(selectorRegistro)
-    console.log('hizo click en el menu')
+    // console.log('hizo click en el menu')
     await page.click(selectorTipo)
     await page.locator(imput).fill(documento)
     await page.click(searchButton)
@@ -109,9 +109,7 @@ const validateDoctor = async (document) => {
           return Array.from(columns, column => column.innerText);
         });
       },tableInfo2)
-      console.log(codProf)
-      console.log(data1)
-      console.log(data2)
+    
       const regex = /Ficha personal de (.+), DNI (\d+)/;
       let nombre = null
       let dni = null
@@ -120,9 +118,8 @@ const validateDoctor = async (document) => {
         nombre = match[1].trim();
         dni = match[2];
       }
-      console.log(data1[0])
+      
       const valuesWithNewLines = data1[0].filter(value => value.includes('\n'));
-      console.log(valuesWithNewLines)
       
       const parsedData = valuesWithNewLines.map(item => {
         const regex = /^(.*)\n{3}Matrícula\s(.+?)\n{3}(?:Especialista\. en: (.+?)\n{3})?Habilitado en (.+)$/;
@@ -147,8 +144,6 @@ const validateDoctor = async (document) => {
         return null;
       });
 
-
-      console.log(parsedData)
       const matricula = parsedData.filter(item => item !== null);
       const otrosDatos = [...new Set(data2.flat().filter(item => item !== ''))];
 
@@ -159,7 +154,6 @@ const validateDoctor = async (document) => {
         matricula,
         otrosDatos
       }
-      console.log(formatResponse)
       await browser.close();
       return formatResponse
     } catch (err) {
