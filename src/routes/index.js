@@ -41,7 +41,6 @@ const router = Router();
 
 const postRatings = require('./rating/post.rating.js');
 
-// Configuramos los routers
 router.use('/users', getUsers);
 router.use('/users', postUsers);
 router.use('/users', putUsers);
@@ -65,7 +64,6 @@ router.use('/symptoms', verifyToken, getSymptoms);
 router.use('/symptoms', verifyToken, postSymptoms);
 router.use('/symptoms', verifyToken, deleteSymptoms);
 
-// router.use('/specializations', verifyToken, getSpecializations);
 router.use('/specializations', verifyToken, getSpecializations);
 router.use('/specializations', verifyToken, postSpecializations);
 router.use('/specializations', verifyToken, deleteSpecializations);
@@ -77,6 +75,5 @@ router.use('/uploads', [verifyToken, upload], postCertificates);
 router.use('/messages', verifyToken, postMessages);
 
 router.use('/rating', verifyToken, postRatings);
-
 
 module.exports = router;

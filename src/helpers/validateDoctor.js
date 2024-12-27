@@ -24,10 +24,11 @@ const createMessageEvaluationEmail = (result) => {
 const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => {
   try {
     const response = await validateDoctor(dni)
-    console.log(response)
+    console.log(`Respuesta validacion:${response}`)
     let data = {validated:'disabled'}
-    if(response.matricula) data.validated = 'completed'
+    if(response) data.validated = 'completed'
     await updateUser(id, data);
+
     //const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
     //try {
       //const emailService = await doctorEvaluationEmail(email, ${lastName} ${firstName}, emailMessage)
@@ -35,7 +36,7 @@ const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => 
      // console.log(err)
     //}
   }catch(err){
-   console.log(err)
+    console.log(err)
   }
 }
 
@@ -47,12 +48,13 @@ const validateDoctor = async (document) => {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      protocolTimeout: 60000
+      protocolTimeout: 600000
     });
     console.log('browser iniciado')
     const page = await browser.newPage()
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3');
     page.setDefaultTimeout(600000)
+    page.setDefaultNavigationTimeout(600000); 
     console.log(sisaUrl)
     await page.goto(sisaUrl, {
       waitUntil: 'networkidle0'
@@ -61,9 +63,9 @@ const validateDoctor = async (document) => {
     const cookies = await page.cookies();
     await page.setCookie(...cookies);
     await page.waitForSelector(selectorRegistro);
-    console.log('encontro el boton')
+    // console.log('encontro el boton')
     await page.click(selectorRegistro)
-    console.log('hizo click en el menu')
+    // console.log('hizo click en el menu')
     await page.click(selectorTipo)
     await page.locator(imput).fill(documento)
     await page.click(searchButton)
@@ -74,7 +76,6 @@ const validateDoctor = async (document) => {
           timeout: 3000
         })
       }catch(err) {
-        //aca si no existe deberia retomar que no es médico, definir respuesta
         await browser.close();
         console.log('no es medico')
         if(err.name === 'TimeoutError') return false
@@ -83,14 +84,10 @@ const validateDoctor = async (document) => {
       await page.waitForSelector(resultTitle, {
         timeout: 5000
       })
-      // const title = await page.evaluate(() => {
-      //   const nombre = document.querySelector(resultTitle)
-      //   return nombre.innerText
-      // })
       const title = await page.evaluate((resultTitle) => {
         const nombre = document.querySelector(resultTitle);
-        return nombre ? nombre.innerText : null; // Verifica que el elemento existe
-      }, resultTitle); // Pasa la variable resultTitle al contexto del navegador
+        return nombre ? nombre.innerText : null; 
+      }, resultTitle); 
 
       const codProf = await page.evaluate((codProfInfo) => {
         const codigo = document.querySelector(codProfInfo)
@@ -112,9 +109,7 @@ const validateDoctor = async (document) => {
           return Array.from(columns, column => column.innerText);
         });
       },tableInfo2)
-      console.log(codProf)
-      console.log(data1)
-      console.log(data2)
+    
       const regex = /Ficha personal de (.+), DNI (\d+)/;
       let nombre = null
       let dni = null
@@ -123,9 +118,8 @@ const validateDoctor = async (document) => {
         nombre = match[1].trim();
         dni = match[2];
       }
-      console.log(data1[0])
+      
       const valuesWithNewLines = data1[0].filter(value => value.includes('\n'));
-      console.log(valuesWithNewLines)
       
       const parsedData = valuesWithNewLines.map(item => {
         const regex = /^(.*)\n{3}Matrícula\s(.+?)\n{3}(?:Especialista\. en: (.+?)\n{3})?Habilitado en (.+)$/;
@@ -150,8 +144,6 @@ const validateDoctor = async (document) => {
         return null;
       });
 
-
-      console.log(parsedData)
       const matricula = parsedData.filter(item => item !== null);
       const otrosDatos = [...new Set(data2.flat().filter(item => item !== ''))];
 
@@ -162,7 +154,6 @@ const validateDoctor = async (document) => {
         matricula,
         otrosDatos
       }
-      console.log(formatResponse)
       await browser.close();
       return formatResponse
     } catch (err) {
