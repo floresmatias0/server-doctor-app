@@ -36,8 +36,6 @@ const postMessages = require('./messages/post.messages.js');
 const upload = require('../middlewares/multer.middleware.js');
 const {verifyToken} = require('../middlewares/auth.middleware.js');
 
-const test = require('./testRoute/post.testRoute.js')
-
 const router = Router();
 
 // Configuramos los routers
@@ -74,7 +72,5 @@ router.use('/certificates', [verifyToken, upload], postCertificates);
 router.use('/uploads', [verifyToken, upload], postCertificates);
 
 router.use('/messages', verifyToken, postMessages);
-
-// router.use('/test', test)
 
 module.exports = router;
