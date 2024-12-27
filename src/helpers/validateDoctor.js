@@ -27,8 +27,8 @@ const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => 
     console.log(`Respuesta validacion:${response}`)
     let data = {validated:'disabled'}
     if(response) data.validated = 'completed'
-    //await updateUser(id, data);
-
+    await updateUser(id, data);
+    
     //const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
     //try {
       //const emailService = await doctorEvaluationEmail(email, ${lastName} ${firstName}, emailMessage)
