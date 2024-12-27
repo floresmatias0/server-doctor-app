@@ -27,7 +27,8 @@ const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => 
     console.log(response)
     let data = {validated:'disabled'}
     if(response.matricula) data.validated = 'completed'
-    await updateUser(id, data);
+    //await updateUser(id, data);
+
     //const emailMessage = createMessageEvaluationEmail(createMessageEvaluationEmail.validated)
     //try {
       //const emailService = await doctorEvaluationEmail(email, ${lastName} ${firstName}, emailMessage)
@@ -35,7 +36,7 @@ const validateDoctorAndUpdateDB = async(id, dni, firstName, lastName, email) => 
      // console.log(err)
     //}
   }catch(err){
-   console.log(err)
+    console.log(err)
   }
 }
 
@@ -53,6 +54,7 @@ const validateDoctor = async (document) => {
     const page = await browser.newPage()
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3');
     page.setDefaultTimeout(600000)
+    page.setDefaultNavigationTimeout(600000); 
     console.log(sisaUrl)
     await page.goto(sisaUrl, {
       waitUntil: 'networkidle0'
@@ -74,7 +76,6 @@ const validateDoctor = async (document) => {
           timeout: 3000
         })
       }catch(err) {
-        //aca si no existe deberia retomar que no es médico, definir respuesta
         await browser.close();
         console.log('no es medico')
         if(err.name === 'TimeoutError') return false
@@ -83,14 +84,10 @@ const validateDoctor = async (document) => {
       await page.waitForSelector(resultTitle, {
         timeout: 5000
       })
-      // const title = await page.evaluate(() => {
-      //   const nombre = document.querySelector(resultTitle)
-      //   return nombre.innerText
-      // })
       const title = await page.evaluate((resultTitle) => {
         const nombre = document.querySelector(resultTitle);
-        return nombre ? nombre.innerText : null; // Verifica que el elemento existe
-      }, resultTitle); // Pasa la variable resultTitle al contexto del navegador
+        return nombre ? nombre.innerText : null; 
+      }, resultTitle); 
 
       const codProf = await page.evaluate((codProfInfo) => {
         const codigo = document.querySelector(codProfInfo)
