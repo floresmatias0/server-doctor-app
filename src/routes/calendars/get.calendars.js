@@ -392,14 +392,20 @@ const getAvailableSlots = (user, occupiedSlots) => {
 server.get('/closest-appointments', async (req, res) => {
     try {
       const { specialization } = req.query;
-      
-      // console.log(`Buscando médicos con la especialización: ${specialization}`);
+      const decodedSpecialization = decodeURIComponent(specialization);
+      const normalizedSpecialization = decodedSpecialization.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      console.log("Specialization (Backend):", normalizedSpecialization); // Log para depuración
+  
       const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"]}`);
       const doctors = response.data.data;
   
       // Filtrar los médicos por especialización antes de proceder
-      const filteredDoctors = doctors.filter(doctor => doctor.especialization === specialization);
-      // console.log(`Médicos encontrados con especialización ${specialization}: ${filteredDoctors.length}`);
+      const filteredDoctors = doctors.filter(doctor => {
+        const normalizedSpecializations = doctor.especialization.map(spec => spec.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+        console.log("Normalized Doctor Especializations:", normalizedSpecializations); // Log para depuración
+        return normalizedSpecializations.includes(normalizedSpecialization);
+      });
+      console.log("Filtered Doctors:", filteredDoctors); // Log para depuración
   
       if (!filteredDoctors.length) {
         return res.status(404).json({
@@ -429,7 +435,6 @@ server.get('/closest-appointments', async (req, res) => {
         const calendar = google.calendar('v3');
         const timeMin = new Date().toISOString();
   
-//       console.log(`Obteniendo eventos del calendario para el médico: ${doctor.email}`);
         const calendarResponse = await calendar.events.list({
           auth,
           calendarId: 'primary',
@@ -444,8 +449,7 @@ server.get('/closest-appointments', async (req, res) => {
         }));
   
         const availableSlots = getAvailableSlots(user, occupiedSlots);
-  
-        // console.log('Available Slots:', availableSlots);
+        console.log('Available Slots for Doctor:', user.email, availableSlots); // Log para depuración
   
         if (availableSlots.length > 0) {
           const adjustedAvailableSlots = availableSlots.map(slot => ({
@@ -477,7 +481,7 @@ server.get('/closest-appointments', async (req, res) => {
         error: err.message
       });
     }
-  });
+  });  
 
 //FIN DE TURNO MAS PROXIMO
 

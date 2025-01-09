@@ -20,7 +20,7 @@ const UserSchema = new Schema({
   reserveTimeUntil2: { type: Number, default: null },
   reserveSaturday: { type: Boolean, default: false },
   reserveSunday: { type: Boolean, default: false },
-  especialization: { type: String, default: '' },
+  especialization: { type: [String], default: [] },
   dateOfBirth: { type: Date, default: null },
   phone: { type: String, default: '' },
   identityType: { type: String, enum: ['DNI', 'CC', 'CI'], default: 'DNI' },
@@ -28,7 +28,9 @@ const UserSchema = new Schema({
   socialWork: { type: String, default: '' },
   socialWorkId: { type: Number, default: 0 },
   enrollment: { type: String, default: '' },
-  validated: { type: String, default: 'incompleted' }
+  validated: { type: String, default: 'incompleted' },
+  provincia: { type: String, default: '' },
+  localidad: { type: String, default: '' }
 }, { 
   timestamps: true 
 });
