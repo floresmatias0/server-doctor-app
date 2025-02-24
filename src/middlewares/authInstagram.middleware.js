@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 
 const verifyBasicAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith("Basic ")) {
     return res.status(401).json({ message: "No credentials provided" });
   }

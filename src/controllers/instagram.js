@@ -5,7 +5,6 @@ const { encryptToken, decryptToken } = require('../helpers/crypto')
 const getToken = async (req, res) => {
   try {
     const instagramData = await Instagram.findOne({ id: 1 })
-    console.log(instagramData)
     if (instagramData) {
       const encryptedData = {
         iv: instagramData.ivToken,
