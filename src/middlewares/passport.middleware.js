@@ -3,7 +3,7 @@ const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_CALLBACK, JWT_SECRET } = process.env;
 
-const { createUser, findUserByEmail, updateUser } = require('../controllers/users');
+const { createUser, findUserByEmail, findUserByEmailAndRol, updateUser } = require('../controllers/users');
 
 passport.use(new GoogleStrategy({
     clientID:     GOOGLE_CLIENT_ID,
@@ -25,7 +25,8 @@ passport.use(new GoogleStrategy({
     };
 
     try {
-        let findedUser = await findUserByEmail(user?.email);
+        //let findedUser = await findUserByEmail(user?.email);
+        let findedUser = await findUserByEmailAndRol(user?.email, user?.role);
   
         if (findedUser) {
           await updateUser(findedUser?._id, { accessToken, refreshToken });

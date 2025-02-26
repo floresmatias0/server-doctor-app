@@ -24,6 +24,10 @@ const getSymptoms = require('./symptoms/get.symptom.js');
 const postSymptoms = require('./symptoms/post.symptom.js');
 const deleteSymptoms = require('./symptoms/delete.symptom.js');
 
+const getSpecializations = require('./specializations/get.specializations.js');
+const postSpecializations = require('./specializations/post.specialization.js');
+const deleteSpecializations = require('./specializations/delete.specialization.js');
+
 const postCertificates = require('./certificates/post.certificates.js');
 const deleteCertificates = require('./certificates/delete.certificates.js');
 
@@ -31,10 +35,15 @@ const postMessages = require('./messages/post.messages.js');
 
 const upload = require('../middlewares/multer.middleware.js');
 const {verifyToken} = require('../middlewares/auth.middleware.js');
+const {verifyBasicAuth} =  require('../middlewares/authInstagram.middleware.js');
 
 const router = Router();
 
-// Configuramos los routers
+
+const postRatings = require('./rating/post.rating.js');
+
+const instagram = require('./instagram/get.instagram.js')
+
 router.use('/users', getUsers);
 router.use('/users', postUsers);
 router.use('/users', putUsers);
@@ -58,11 +67,18 @@ router.use('/symptoms', verifyToken, getSymptoms);
 router.use('/symptoms', verifyToken, postSymptoms);
 router.use('/symptoms', verifyToken, deleteSymptoms);
 
+router.use('/specializations', verifyToken, getSpecializations);
+router.use('/specializations', verifyToken, postSpecializations);
+router.use('/specializations', verifyToken, deleteSpecializations);
+
 router.use('/certificates', verifyToken, deleteCertificates);
 router.use('/certificates', [verifyToken, upload], postCertificates);
 router.use('/uploads', [verifyToken, upload], postCertificates);
 
 router.use('/messages', verifyToken, postMessages);
 
+router.use('/rating', verifyToken, postRatings);
+
+router.use('/instagram', verifyBasicAuth, instagram)
 
 module.exports = router;

@@ -14,20 +14,25 @@ const UserSchema = new Schema({
   mercadopago_access: { type: Object, default: {} },
   reservePrice: { type: Number, default: 500 },
   reserveTime: { type: Number, default: 15 },
-  reserveTimeFrom: { type: Number, default: 10 },
-  reserveTimeUntil: { type: Number, default: 19 },
+  reserveTimeFrom: { type: Number, default: 9 },
+  reserveTimeUntil: { type: Number, default: 18 },
+  reserveTimeFrom2: { type: Number, default: null },
+  reserveTimeUntil2: { type: Number, default: null },
   reserveSaturday: { type: Boolean, default: false },
   reserveSunday: { type: Boolean, default: false },
-  especialization: { type: String, default: '' },
+  especialization: { type: [String], default: [] },
   dateOfBirth: { type: Date, default: null },
   phone: { type: String, default: '' },
   identityType: { type: String, enum: ['DNI', 'CC', 'CI'], default: 'DNI' },
   identityId: { type: Number, default: 0 },
   socialWork: { type: String, default: '' },
   socialWorkId: { type: Number, default: 0 },
-  enrollment: { type: String, default: '' }
-}, {
-  timestamps: true
+  enrollment: { type: String, default: '' },
+  validated: { type: String, default: 'incompleted' },
+  provincia: { type: String, default: '' },
+  localidad: { type: String, default: '' }
+}, { 
+  timestamps: true 
 });
 
 module.exports = model('User', UserSchema);

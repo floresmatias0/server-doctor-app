@@ -48,6 +48,18 @@ const findUserByEmail = async (userEmail) => {
     }
 };
 
+const findUserByEmailAndRol = async (userEmail, rol) => {
+    try {
+        const user = await User.findOne({ email: userEmail, role: rol})
+        if (!user) {
+            return null;
+        }
+        return user;
+    }catch(err) {
+        throw new Error(err.message);
+    }
+}
+
 const createUser = async (userData) => {
     try {
         const { name, firstName, lastName, email, role, picture, googleId, accessToken, refreshToken } = userData;
@@ -95,6 +107,7 @@ module.exports = {
     findAllUsers,
     findUserById,
     findUserByEmail,
+    findUserByEmailAndRol,
     createUser,
     updateUser,
     deleteUser
