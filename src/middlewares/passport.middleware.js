@@ -12,6 +12,15 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
   },
   async (req, accessToken, refreshToken, profile, done) => {
+    // Asegurarse de que role se maneje correctamente como cadena de texto
+    let role = '';
+    try {
+        const state = JSON.parse(req.query.state);
+        role = state.role;
+    } catch (e) {
+        console.error('Error parsing state in passport.middleware:', e.message);
+    }
+
     const user = {
         name: profile.displayName,
         firstName: profile?.given_name,
@@ -21,7 +30,7 @@ passport.use(new GoogleStrategy({
         picture: profile.picture,
         accessToken,
         refreshToken,
-        role: req.query.state
+        role: role  // Asegurarse de que se pasa como cadena
     };
 
     try {

@@ -29,11 +29,18 @@ function defineGoogleScope(req, res, next) {
 
 server.get('/google/', defineGoogleScope, (req, res, next) => {
     try {
+        // Pasar los parámetros como cadenas
+        const state = JSON.stringify({
+            role: req.query.role, // Asegurarse de que role sea una cadena
+            bookingId: req.query.bookingId || '',
+            email: req.query.email || ''
+        });
+
         passport.authenticate('google', {
             scope: req.googleScope,
             accessType: 'offline',
             prompt: 'consent',
-            state: req.query.role,
+            state: state,  // Pasar el estado como cadena JSON
             session: false
         })(req, res, next);
     } catch (error) {
@@ -46,13 +53,25 @@ server.get('/google/callback', (req, res, next) => {
         if (err || !user) {
             return res.redirect('/v1/auth/google/failure');
         }
-        
-        const token = user.token;
 
-        res.redirect(`${process.env.FRONTEND_URL}/verificacion?token=${token}`);
+        const token = user.token;
+        let bookingId = '';
+        let email = '';
+
+        try {
+            // Intentar parsear el estado de la consulta
+            const state = JSON.parse(req.query.state);
+            bookingId = state.bookingId || '';
+            email = state.email || '';
+        } catch (e) {
+            console.error('Error parsing state:', e.message);
+        }
+
+        // Redirigir con los parámetros obtenidos
+        res.redirect(`${process.env.FRONTEND_URL}/verificacion?token=${token}&bookingId=${bookingId}&email=${email}`);
     })(req, res, next);
 });
-  
+
 server.get('/google/success', (req, res, next) => {
     try {
         const { user } = req;
@@ -72,7 +91,6 @@ server.get('/google/failure', (req, res, next) => {
         next(error); // Maneja el error
     }
 });
-
 
 server.get('/google/logout', (req, res, next) => {
     res.redirect(`${process.env.FRONTEND_URL}/iniciar-sesion`);

@@ -95,15 +95,75 @@ server.post('/create', async (req, res) => {
     }
 })
 
+server.post('/create-booking-payment', async (req, res) => {
+    try {
+        const { bookingId, unit_price, user_email, tutor_email } = req.body;
+        const doctor = await findUserByEmail(user_email);
+
+        if (doctor) {
+            const access_token = doctor?.mercadopago_access?.access_token
+            // const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN CUENTA DE PRUEBA
+            const client = new MercadoPagoConfig({ accessToken: access_token }); //--> PRUEBA NUEVO METODO
+            const preference = new Preference(client); // --> PRUEBA NUEVO METODO
+
+            let commision = (unit_price * 10) / 100;
+
+            const body = {
+                items: [
+                  {
+                      title: 'Consulta medica',
+                      description: "Reunion privada con un medico especializado",
+                      category_id: "turns",
+                      currency_id: "ARS",
+                      quantity: 1,
+                      unit_price
+                  },
+                ],
+                marketplace_fee: commision,
+                back_urls: {
+                  success: `${process.env.FRONTEND_URL}/confirm-appointment?status=approved&bookingId=${bookingId}`,
+                  failure: `${process.env.FRONTEND_URL}/confirm-appointment?status=failure&bookingId=${bookingId}`,
+                  pending: `${process.env.FRONTEND_URL}/confirm-appointment?status=pending&bookingId=${bookingId}`,
+                },
+                expires: false,
+                auto_return: 'all',
+                binary_mode: true,
+                marketplace: 'marketplace',
+                notification_url: `${process.env.NOTIFICATION_URL}?d=${user_email}&bookingId=${bookingId}`,
+                operation_type: 'regular_payment',
+                statement_descriptor: 'Zona Med'
+            };
+
+            const data = await preference.create({ body });
+
+            return res.status(200).json({
+                success: true,
+                data
+            });
+        }
+
+        return res.status(401).json({
+            success: false,
+            error: "Usuario no encontrado"
+        });
+    } catch (err) {
+        console.log(err?.message);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 server.post('/webhook/mercadopago', async (req, res) => {
     try {
         const { action } = req?.body;
-        const { d } = req?.query;
+        const { d, bookingId } = req?.query;
 
         const doctor = await findUserByEmail(d);
          //const access_token = 'APP_USR-3936245486590128-040611-54994be7d12fb4d622883318476340ee-1467206734' //--> TOKEN DE PRUEBA
         const access_token = doctor?.mercadopago_access?.access_token;
-  
+
         if (action !== "payment.created") {
             return res.status(200).json({
                 success: false,
@@ -120,44 +180,35 @@ server.post('/webhook/mercadopago', async (req, res) => {
             }
         });
         
-        if(response && response?.data) {
+        if (response && response?.data) {
             const { data } = response;
-
-            const metadata = data?.metadata;
-            const { u, sd, ed, s, p } = metadata?.notification_data;
-
             const payment = await getPayment({ payment_id: (data?.id).toString() });
 
-            if(data?.status === "approved" && !payment) {
-                const order_id = data?.order?.id;
+            if (data?.status === "approved" && !payment) {
+                // Actualizar booking existente
+                const booking = await findBookingById(bookingId);
+                if (booking) {
+                    booking.status = 'confirmed';
+                    await booking.save();
+                }
 
-                await createEvent(d, u, 'Consulta medica', sd, ed, s, p, order_id);
                 await createPayment({
                     payment_id: data?.id,
-                    merchant_order_id: order_id,
+                    merchant_order_id: data?.order?.id,
                     status: data?.status,
-                    payer: u,
+                    payer: data?.payer?.email,
                     doctor
-                })
+                });
 
-                await reservedShift(
-                    d,
-                    true,
-                    'Tiene un nuevo turno agendado.',
-                    p,
-                    `${doctor?.firstName} ${doctor?.lastName}` || `${doctor?.name}`,
-                    `${doctor?.especialization}`,
-                    sd,
-                    doctor?.reservePrice,
-                    'bookingIdTest',
-                    d
-                )
-
+                return res.status(200).json({
+                    success: true,
+                    message: "Pago confirmado y booking actualizada"
+                });
             }
 
             return res.status(500).json({
                 success: false,
-                message: "Se logro obtener los datos del pago"
+                message: "Se logró obtener los datos del pago"
             });
         }
 
@@ -165,13 +216,13 @@ server.post('/webhook/mercadopago', async (req, res) => {
             success: false,
             message: "No se pudo obtener los datos del pago"
         });
-    }catch(err) {
-        console.log(err)
+    } catch (err) {
+        console.log(err);
         return res.status(500).json({
             success: false,
             error: err.message
         });
     }
-})
+});
 
 module.exports = server;

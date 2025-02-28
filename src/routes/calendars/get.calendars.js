@@ -87,24 +87,43 @@ server.get('/all-events/:id?', async (req, res) => {
         for (let i = 0; i < events.length; i++) {
             let obj = {};
             let patientId = events[i]?.patient;
-            let patient = await findPatientById(patientId);
+            let patient;
+
+            if (patientId) {
+                patient = await findPatientById(patientId);
+            }
 
             obj.id = events[i]?._id;
             obj.bookingId = events[i]?.booking_id;
 
-            obj.patientId = patient?._id;
-            obj.patientName = (patient?.firstName || patient?.lastName) ? `${patient?.firstName} ${patient?.lastName}` : patient?.name;
-            obj.patientGenre = patient?.genre;
-            obj.patientSocialWork = patient?.socialWork;
-            obj.patientSocialWorkId = patient?.socialWorkId;
-            obj.patientDocuments = patient?.documents;
-            obj.patientProceedings = patient?.proceedings;
+            if (patient) {
+                obj.patientId = patient?._id;
+                obj.patientName = (patient?.firstName || patient?.lastName) ? `${patient?.firstName} ${patient?.lastName}` : patient?.name;
+                obj.patientGenre = patient?.genre;
+                obj.patientSocialWork = patient?.socialWork;
+                obj.patientSocialWorkId = patient?.socialWorkId;
+                obj.patientDocuments = patient?.documents;
+                obj.patientProceedings = patient?.proceedings;
 
-            obj.tutorId = patient?.userId?._id;
-            obj.tutorName = (patient?.userId?.firstName || patient?.userId?.lastName) ? `${patient?.userId?.firstName} ${patient?.userId?.lastName}` : patient?.userId?.name;
-            obj.tutorEmail = patient?.userId?.email;
-            obj.tutorPhone = patient?.userId?.phone;
-            
+                obj.tutorId = patient?.userId?._id;
+                obj.tutorName = (patient?.userId?.firstName || patient?.userId?.lastName) ? `${patient?.userId?.firstName} ${patient?.userId?.lastName}` : patient?.userId?.name;
+                obj.tutorEmail = patient?.userId?.email;
+                obj.tutorPhone = patient?.userId?.phone;
+            } else if (events[i]?.patientInfo) {
+                obj.patientId = null;
+                obj.patientName = events[i]?.patientInfo.name;
+                obj.patientGenre = null;
+                obj.patientSocialWork = null;
+                obj.patientSocialWorkId = null;
+                obj.patientDocuments = null;
+                obj.patientProceedings = null;
+
+                obj.tutorId = null;
+                obj.tutorName = events[i]?.patientInfo.tutorName;
+                obj.tutorEmail = events[i]?.patientInfo.email;
+                obj.tutorPhone = null;
+            }
+
             let beginning = new Date(events[i]?.start?.dateTime).toLocaleString("es", {day: "numeric", month: "numeric", year: "numeric"});
             obj.beginning = beginning;
             let startTime = new Date(events[i]?.start?.dateTime).toLocaleString("es", {hour: "numeric", minute: "numeric"});
@@ -116,7 +135,7 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.link = events[i]?.hangoutLink;
 
             obj.symptoms = events[i]?.symptoms?.map(u => u.name).join(', ');
-            
+
             obj.doctorId = events[i]?.organizer?._id;
             obj.doctorName = events[i]?.organizer?.name;
             obj.doctorEmail = events[i]?.organizer?.email;

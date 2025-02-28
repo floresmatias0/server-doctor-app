@@ -4,8 +4,12 @@ const Schema = mongoose.Schema;
 const BookingSchema = new Schema({
     order_id: { type: String, default: "" },
     booking_id: String,
-    user_id: String,
-    status: String,
+    user_id: { type: String, default: null },  // Permite null como valor por defecto
+    status: { 
+        type: String, 
+        default: 'pending',  // Valor por defecto para el estado
+        enum: ['pending', 'confirmed', 'cancelled']  // Limita los valores posibles de status
+    },
     summary: String,
     organizer: {
         _id: Schema.Types.ObjectId,
@@ -33,6 +37,11 @@ const BookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Patient'
     },
+    patientInfo: {  // Nuevo campo para almacenar información adicional del paciente
+        name: String,
+        tutorName: String,
+        email: String
+    },
     certificate: [{
         type: Schema.Types.ObjectId,
         ref: 'Certificate'
@@ -51,3 +60,4 @@ const BookingSchema = new Schema({
 
 const Booking = mongoose.model('Booking', BookingSchema);
 module.exports = Booking;
+

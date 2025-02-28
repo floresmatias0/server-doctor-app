@@ -1,32 +1,51 @@
 const server = require('express').Router();
-const { reservedShift } = require('../../controllers/messages');
+const { reservedShift, notifyPatientToConfirmBooking, doctorEvaluationEmail } = require('../../controllers/messages');
 
 server.post('/', async (req, res) => {
-    try {
+  try {
+    const {
+      emailType,
+      sendTo,
+      subject,
+      patientName,
+      doctorName,
+      doctorEspecialization,
+      startDate,
+      price,
+      bookingId,
+      doctorEmail,
+      isHtml,
+    } = req.body;
 
-        const data = await reservedShift(
-            'matiflores50@gmail.com',
-            true,
-            'Tiene un nuevo turno agendado.',
-            'Juan Perez',
-            'Matias Rodriguez',
-            'Pediatra especialista en desarrollo',
-            '14 diciembre 2025, 16:00 HS.',
-            15000,
-            'bookingIdTest',
-            'doctorEmail@test.com'
-        )
-
-        return res.status(200).json({
-            success: true,
-            data
-        });
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            error: err.message
+    let data;
+    switch (emailType) {
+      case 'reservedShift':
+        data = await reservedShift(sendTo, isHtml, subject, patientName, doctorName, doctorEspecialization, startDate, price, bookingId, doctorEmail);
+        break;
+      case 'notifyPatientToConfirmBooking':
+        data = await notifyPatientToConfirmBooking(sendTo, subject, patientName, doctorName, doctorEspecialization, startDate, price, bookingId, doctorEmail);
+        break;
+      case 'doctorEvaluationEmail':
+        data = await doctorEvaluationEmail(sendTo, doctorName, subject);
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          error: "Invalid email type"
         });
     }
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    console.error("Error en el servidor:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
 });
 
 module.exports = server;

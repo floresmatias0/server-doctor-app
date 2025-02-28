@@ -34,12 +34,13 @@ const deleteCertificates = require('./certificates/delete.certificates.js');
 const postMessages = require('./messages/post.messages.js');
 
 const upload = require('../middlewares/multer.middleware.js');
-const {verifyToken} = require('../middlewares/auth.middleware.js');
+const { verifyToken } = require('../middlewares/auth.middleware.js');
 
 const router = Router();
 
-
 const postRatings = require('./rating/post.rating.js');
+
+const getBookings = require('./bookings/get.bookings.js');
 
 router.use('/users', getUsers);
 router.use('/users', postUsers);
@@ -51,7 +52,7 @@ router.use('/auth', getAuth);
 router.use('/calendars', verifyToken, getCalendars);
 router.use('/calendars', verifyToken, postCalendars);
 router.use('/calendars', verifyToken, deleteCalendars);
-router.use('/calendars', verifyToken, patchCalendars)
+router.use('/calendars', verifyToken, patchCalendars);
 
 router.use('/payments', getPayments);
 router.use('/payments', postPayments);
@@ -75,5 +76,7 @@ router.use('/uploads', [verifyToken, upload], postCertificates);
 router.use('/messages', verifyToken, postMessages);
 
 router.use('/rating', verifyToken, postRatings);
+
+router.use('/bookings', verifyToken, getBookings);
 
 module.exports = router;
