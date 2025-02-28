@@ -34,11 +34,14 @@ const deleteCertificates = require('./certificates/delete.certificates.js');
 const postMessages = require('./messages/post.messages.js');
 
 const upload = require('../middlewares/multer.middleware.js');
-const { verifyToken } = require('../middlewares/auth.middleware.js');
+const {verifyToken} = require('../middlewares/auth.middleware.js');
+const {verifyBasicAuth} =  require('../middlewares/authInstagram.middleware.js');
 
 const router = Router();
 
 const postRatings = require('./rating/post.rating.js');
+
+const instagram = require('./instagram/get.instagram.js')
 
 const getBookings = require('./bookings/get.bookings.js');
 
@@ -76,6 +79,8 @@ router.use('/uploads', [verifyToken, upload], postCertificates);
 router.use('/messages', verifyToken, postMessages);
 
 router.use('/rating', verifyToken, postRatings);
+
+router.use('/instagram', verifyBasicAuth, instagram)
 
 router.use('/bookings', verifyToken, getBookings);
 
