@@ -1,6 +1,6 @@
 const server = require('express').Router();
 const { google } = require('googleapis');
-const { findUserByEmail, updateUser } = require('../../controllers/users');
+const { findUserByEmail, findUserByEmailAndRol, updateUser } = require('../../controllers/users');
 const { findAllBooking, getChartsBookings, findBookingById, updateBooking } = require('../../controllers/calendars');
 const { findPatientById } = require('../../controllers/patients');
 const axios = require('axios');
@@ -10,9 +10,15 @@ const { v4: uuidv4 } = require('uuid');
 server.get('/', async (req, res) => {
     try {
         const { email } = req.query;
-
-        const user = await findUserByEmail(email);
-
+        const { rol } = req.query;
+        
+        let user = null
+        if(!rol) {
+            user = await findUserByEmail(email);
+        }else {
+            user = await findUserByEmailAndRol(email, rol)
+        }
+        
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -25,6 +31,8 @@ server.get('/', async (req, res) => {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET
         });
+
+        console.log(auth)
 
         auth.setCredentials({ refresh_token: user.refreshToken });
         // Actualizar el token de acceso utilizando el refreshToken
@@ -39,7 +47,7 @@ server.get('/', async (req, res) => {
 
         const timeMin = new Date().toISOString();
 
-        calendar.events.list({ 
+        calendar.events.list({
             auth,
             calendarId: 'primary',
             timeMin,
@@ -104,10 +112,10 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.tutorName = (patient?.userId?.firstName || patient?.userId?.lastName) ? `${patient?.userId?.firstName} ${patient?.userId?.lastName}` : patient?.userId?.name;
             obj.tutorEmail = patient?.userId?.email;
             obj.tutorPhone = patient?.userId?.phone;
-            
-            let beginning = new Date(events[i]?.start?.dateTime).toLocaleString("es", {day: "numeric", month: "numeric", year: "numeric"});
+
+            let beginning = new Date(events[i]?.start?.dateTime).toLocaleString("es", { day: "numeric", month: "numeric", year: "numeric" });
             obj.beginning = beginning;
-            let startTime = new Date(events[i]?.start?.dateTime).toLocaleString("es", {hour: "numeric", minute: "numeric"});
+            let startTime = new Date(events[i]?.start?.dateTime).toLocaleString("es", { hour: "numeric", minute: "numeric" });
             obj.startTime = startTime;
 
             obj.originalStartTime = events[i]?.start?.dateTime;
@@ -116,7 +124,7 @@ server.get('/all-events/:id?', async (req, res) => {
             obj.link = events[i]?.hangoutLink;
 
             obj.symptoms = events[i]?.symptoms?.map(u => u.name).join(', ');
-            
+
             obj.doctorId = events[i]?.organizer?._id;
             obj.doctorName = events[i]?.organizer?.name;
             obj.doctorEmail = events[i]?.organizer?.email;
@@ -186,7 +194,7 @@ server.get('/doctor-patients/:doctorEmail', async (req, res) => {
 
         let formatPatient = [];
 
-        for(let i = 0; i < patients.length; i++) {
+        for (let i = 0; i < patients.length; i++) {
             let obj = {}
             let patient = patients[i];
 
@@ -230,7 +238,7 @@ server.get('/charts-booking', async (req, res) => {
             success: true,
             data: dates
         });
-    }catch(err) {
+    } catch (err) {
         console.log(err.message)
         return res.status(500).json({
             success: false,
@@ -279,7 +287,7 @@ server.get('/cancelation/:id', async (req, res) => {
             calendarId: 'primary', // ID del calendario (puedes usar 'primary' para el calendario principal)
             eventId: booking.booking_id,
             auth: auth,
-          }, async (err, response) => {
+        }, async (err, response) => {
             if (err) {
                 console.error('Error al eliminar el evento:', err);
                 return res.status(500).json({
@@ -294,13 +302,13 @@ server.get('/cancelation/:id', async (req, res) => {
                 status: 'deleted'
             })
 
-            const payment = await getPayment({merchant_order_id: booking?.order_id});
+            const payment = await getPayment({ merchant_order_id: booking?.order_id });
 
-            const randomString = uuidv4();  
+            const randomString = uuidv4();
             const responsePayment = await axios.request({
                 method: 'POST',
                 url: `https://api.mercadopago.com/v1/payments/${payment?.payment_id}/refunds?access_token=${access_token}`,
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'X-Idempotency-Key': randomString
                 }
@@ -391,97 +399,97 @@ const getAvailableSlots = (user, occupiedSlots) => {
 
 server.get('/closest-appointments', async (req, res) => {
     try {
-      const { specialization } = req.query;
-      const decodedSpecialization = decodeURIComponent(specialization);
-      const normalizedSpecialization = decodedSpecialization.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      console.log("Specialization (Backend):", normalizedSpecialization); // Log para depuración
-  
-      const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"]}`);
-      const doctors = response.data.data;
-  
-      // Filtrar los médicos por especialización antes de proceder
-      const filteredDoctors = doctors.filter(doctor => {
-        const normalizedSpecializations = doctor.especialization.map(spec => spec.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-        console.log("Normalized Doctor Especializations:", normalizedSpecializations); // Log para depuración
-        return normalizedSpecializations.includes(normalizedSpecialization);
-      });
-      console.log("Filtered Doctors:", filteredDoctors); // Log para depuración
-  
-      if (!filteredDoctors.length) {
-        return res.status(404).json({
-          success: false,
-          error: "No doctors found for this specialization"
+        const { specialization } = req.query;
+        const decodedSpecialization = decodeURIComponent(specialization);
+        const normalizedSpecialization = decodedSpecialization.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        console.log("Specialization (Backend):", normalizedSpecialization); // Log para depuración
+
+        const response = await axios.get(`${process.env.BACKEND_URL}/users?filters={"role":["DOCTOR"]}`);
+        const doctors = response.data.data;
+
+        // Filtrar los médicos por especialización antes de proceder
+        const filteredDoctors = doctors.filter(doctor => {
+            const normalizedSpecializations = doctor.especialization.map(spec => spec.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+            console.log("Normalized Doctor Especializations:", normalizedSpecializations); // Log para depuración
+            return normalizedSpecializations.includes(normalizedSpecialization);
         });
-      }
-  
-      let appointments = [];
-      for (const doctor of filteredDoctors) {
-        const user = await findUserByEmail(doctor.email);
-  
-        const auth = new google.auth.OAuth2({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET
-        });
-  
-        auth.setCredentials({ refresh_token: user.refreshToken });
-  
-        const refreshedTokens = await auth.refreshAccessToken();
-  
-        if (refreshedTokens.credentials.access_token) {
-          await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
-          auth.setCredentials({ access_token: refreshedTokens.credentials.access_token });
+        console.log("Filtered Doctors:", filteredDoctors); // Log para depuración
+
+        if (!filteredDoctors.length) {
+            return res.status(404).json({
+                success: false,
+                error: "No doctors found for this specialization"
+            });
         }
-  
-        const calendar = google.calendar('v3');
-        const timeMin = new Date().toISOString();
-  
-        const calendarResponse = await calendar.events.list({
-          auth,
-          calendarId: 'primary',
-          timeMin,
-          singleEvents: true,
-          orderBy: 'startTime'
-        });
-  
-        const occupiedSlots = calendarResponse.data.items.map(event => ({
-          start: new Date(event.start.dateTime),
-          end: new Date(event.end.dateTime)
-        }));
-  
-        const availableSlots = getAvailableSlots(user, occupiedSlots);
-        console.log('Available Slots for Doctor:', user.email, availableSlots); // Log para depuración
-  
-        if (availableSlots.length > 0) {
-          const adjustedAvailableSlots = availableSlots.map(slot => ({
-            start: adjustTime(slot.start, -3),
-            end: adjustTime(slot.end, -3)
-          }));
-  
-          appointments.push({
-            doctor: doctor,
-            nextAvailable: {
-              start: adjustedAvailableSlots[0].start.toISOString(),
-              end: adjustedAvailableSlots[0].end.toISOString()
+
+        let appointments = [];
+        for (const doctor of filteredDoctors) {
+            const user = await findUserByEmail(doctor.email);
+
+            const auth = new google.auth.OAuth2({
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET
+            });
+
+            auth.setCredentials({ refresh_token: user.refreshToken });
+
+            const refreshedTokens = await auth.refreshAccessToken();
+
+            if (refreshedTokens.credentials.access_token) {
+                await updateUser(user._id, { accessToken: refreshedTokens.credentials.access_token });
+                auth.setCredentials({ access_token: refreshedTokens.credentials.access_token });
             }
-          });
-        } else {
-          console.log(`No hay horarios disponibles para el médico: ${doctor.email}`);
+
+            const calendar = google.calendar('v3');
+            const timeMin = new Date().toISOString();
+
+            const calendarResponse = await calendar.events.list({
+                auth,
+                calendarId: 'primary',
+                timeMin,
+                singleEvents: true,
+                orderBy: 'startTime'
+            });
+
+            const occupiedSlots = calendarResponse.data.items.map(event => ({
+                start: new Date(event.start.dateTime),
+                end: new Date(event.end.dateTime)
+            }));
+
+            const availableSlots = getAvailableSlots(user, occupiedSlots);
+            console.log('Available Slots for Doctor:', user.email, availableSlots); // Log para depuración
+
+            if (availableSlots.length > 0) {
+                const adjustedAvailableSlots = availableSlots.map(slot => ({
+                    start: adjustTime(slot.start, -3),
+                    end: adjustTime(slot.end, -3)
+                }));
+
+                appointments.push({
+                    doctor: doctor,
+                    nextAvailable: {
+                        start: adjustedAvailableSlots[0].start.toISOString(),
+                        end: adjustedAvailableSlots[0].end.toISOString()
+                    }
+                });
+            } else {
+                console.log(`No hay horarios disponibles para el médico: ${doctor.email}`);
+            }
         }
-      }
-  
-      return res.status(200).json({
-        success: true,
-        data: appointments
-      });
-  
+
+        return res.status(200).json({
+            success: true,
+            data: appointments
+        });
+
     } catch (err) {
-      console.error("Error fetching closest appointments", err.message);
-      return res.status(500).json({
-        success: false,
-        error: err.message
-      });
+        console.error("Error fetching closest appointments", err.message);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
     }
-  });  
+});
 
 //FIN DE TURNO MAS PROXIMO
 
